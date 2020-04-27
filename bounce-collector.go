@@ -22,6 +22,13 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
+	//data, err := ioutil.ReadFile(os.Args[1])
+	//if err != nil {
+	//	fmt.Println("Can't read file:", os.Args[1])
+	//	panic(err)
+	//}
+	//
+	//reader := strings.NewReader(string(data))
 	m, err := mail.ReadMessage(reader)
 	if err != nil {
 		panic(err)

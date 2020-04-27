@@ -75,7 +75,7 @@ func findBounceMessage(body []byte) (code int, status string, message string) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "diagnostic-code:") {
-			code, status, message = analyzeDiagCode(line[15:])
+			code, status, message = analyzeDiagCode(strings.TrimSpace(line[16:]))
 		}
 	}
 
