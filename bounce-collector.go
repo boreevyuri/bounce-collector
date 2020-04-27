@@ -7,45 +7,43 @@ import (
 	"io/ioutil"
 	"net/mail"
 	"os"
+	"strings"
 )
 
 func main() {
+	var m *mail.Message
+
 	data, err := os.Stdin.Stat()
 	if err != nil {
 		panic(err)
 	}
 
-	if data.Mode()&os.ModeNamedPipe == 0 {
-		fmt.Println("Use it with pipe")
-		return
-	}
+	if (data.Mode() & os.ModeNamedPipe) == 0 {
+		file, err := ioutil.ReadFile(os.Args[1])
+		if err != nil {
+			fmt.Println("Use with pipe or put file as first argument")
+			panic(err)
+		}
 
-	reader := bufio.NewReader(os.Stdin)
+		reader := strings.NewReader(string(file))
+		m, err = mail.ReadMessage(reader)
 
-	//data, err := ioutil.ReadFile(os.Args[1])
-	//if err != nil {
-	//	fmt.Println("Can't read file:", os.Args[1])
-	//	panic(err)
-	//}
-	//
-	//reader := strings.NewReader(string(data))
-	m, err := mail.ReadMessage(reader)
-	if err != nil {
-		panic(err)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		reader := bufio.NewReader(os.Stdin)
+		m, err = mail.ReadMessage(reader)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// Забираем заголовки
 	//headers := m.Header
-	body, err := ioutil.ReadAll(m.Body)
+	body, _ := ioutil.ReadAll(m.Body)
 
 	res := analyzer.Analyze(body)
 	fmt.Printf("%v", res)
-	//var mailMessage []string
-	//for
-	//	input, _, err := reader.Read()
-	//	if err != nil && err == io.EOF {
-	//		break
-	//	}
-	//	mailMessage = append(mailMessage, input)
-	//}
 }

@@ -86,7 +86,9 @@ func analyzeDiagCode(s string) (code int, status string, message string) {
 	var (
 		statusRegexp = regexp.MustCompile(`^\d\.\d\.\d+$`)
 	)
+
 	status = statusNotFound
+
 	//вначале идет smtp;
 	parts := strings.Split(strings.TrimSpace(strings.TrimPrefix(s, "smtp;")), " ")
 
