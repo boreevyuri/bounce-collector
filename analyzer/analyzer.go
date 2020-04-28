@@ -8,9 +8,11 @@ import (
 )
 
 const (
-	statusNotFound = "0.0.0"
-	diagCodeHeader = "diagnostic-code:"
-	SMTPCodeLen    = 3
+	statusNotFound    = "0.0.0"
+	BadEmailAddress   = "5.1.1"
+	diagCodeHeader    = "diagnostic-code:"
+	SMTPCodeLen       = 3
+	unrouteableString = "unrouteable address"
 )
 
 //Тип баунса
@@ -80,12 +82,21 @@ func findBounceMessage(body []byte) (res Result, err error) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
-		// Ищем Diagnostic-Code
+		// Приоритет на Diagnostic-Code
 		if strings.HasPrefix(line, diagCodeHeader) {
-			res, err = analyzeDiagCode(strings.TrimSpace(line[16:]))
+			res, err = analyzeDiagCode(strings.TrimSpace(line[len(diagCodeHeader):]))
 			if err != nil {
-				continue
+				break
 			}
+		}
+
+		// Проверка на наличие Unrouteable address
+		if strings.EqualFold(line, unrouteableString) {
+			res.SMTPCode = 550
+			res.SMTPStatus = BadEmailAddress
+			res.Reason = "Unrouteable address"
+
+			break
 		}
 	}
 

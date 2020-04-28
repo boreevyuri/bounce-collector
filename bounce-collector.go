@@ -47,5 +47,5 @@ func main() {
 	body, _ := ioutil.ReadAll(m.Body)
 
 	res := analyzer.Analyze(body)
-	fmt.Printf("SMTP code: %d, Status: %s, Message: %s", res.SMTPCode, res.SMTPStatus, res.Reason)
+	fmt.Printf("SMTP code: %d, Status: %s, Message: %s\n", res.SMTPCode, res.SMTPStatus, res.Reason)
 }
