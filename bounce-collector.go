@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/boreevyuri/bounce-collector/analyzer"
+	"github.com/boreevyuri/bounce-collector/writer"
 	"io/ioutil"
 	"net/mail"
 	"os"
@@ -47,5 +48,7 @@ func main() {
 	body, _ := ioutil.ReadAll(m.Body)
 
 	res := analyzer.Analyze(body)
+
+	writer.RedisClient()
 	fmt.Printf("SMTP code: %d, Status: %s, Message: %s\n", res.SMTPCode, res.SMTPStatus, res.Reason)
 }
