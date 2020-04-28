@@ -21,7 +21,10 @@ func main() {
 	if (data.Mode() & os.ModeNamedPipe) == 0 {
 		file, err := ioutil.ReadFile(os.Args[1])
 		if err != nil {
-			fmt.Println("Use with pipe or put file as first argument")
+			fmt.Println("Usage:")
+			fmt.Println("bounce-collector file.eml")
+			fmt.Println("or")
+			fmt.Println("cat file.eml | bounce-collector")
 			panic(err)
 		}
 
@@ -40,10 +43,9 @@ func main() {
 		}
 	}
 
-	// Забираем заголовки
-	//headers := m.Header
+	//Забираем тело на анализы
 	body, _ := ioutil.ReadAll(m.Body)
 
 	res := analyzer.Analyze(body)
-	fmt.Printf("%v", res)
+	fmt.Printf("%v+", res)
 }

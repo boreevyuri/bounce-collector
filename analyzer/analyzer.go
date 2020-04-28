@@ -1,6 +1,7 @@
 package analyzer
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -8,6 +9,8 @@ import (
 
 const (
 	statusNotFound = "0.0.0"
+	diagCodeHeader = "diagnostic-code:"
+	SMTPCodeLen    = 3
 )
 
 //Тип баунса
@@ -52,20 +55,22 @@ type Result struct {
 }
 
 func Analyze(body []byte) Result {
-	code, status, message := findBounceMessage(body)
+	if res, err := findBounceMessage(body); err == nil {
+		return res
+	}
+
 	return Result{
-		SMTPCode:   code,
-		SMTPStatus: status,
-		Reason:     message,
+		SMTPCode:   0,
+		SMTPStatus: "0.0.0",
+		Reason:     "Unable to find reason",
 	}
 }
 
-func findBounceMessage(body []byte) (code int, status string, message string) {
+func findBounceMessage(body []byte) (res Result, err error) {
 	//Ценный Diagnostic-Code находится обычно в конце тела, поэтому перевернем body и приведем к нижнему регистру
 	lns := strings.Split(strings.ToLower(string(body)), "\n")
 	numLines := len(lns)
-
-	var lines = make([]string, numLines)
+	lines := make([]string, numLines)
 
 	for i, l := range lns {
 		lines[numLines-i-1] = l
@@ -74,60 +79,66 @@ func findBounceMessage(body []byte) (code int, status string, message string) {
 	//Ищем нужные вхождения
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "diagnostic-code:") {
-			code, status, message = analyzeDiagCode(strings.TrimSpace(line[16:]))
+
+		// Ищем Diagnostic-Code
+		if strings.HasPrefix(line, diagCodeHeader) {
+			res, err = analyzeDiagCode(strings.TrimSpace(line[16:]))
+			if err != nil {
+				continue
+			}
 		}
 	}
 
-	return code, status, message
+	return res, err
 }
 
-func analyzeDiagCode(s string) (code int, status string, message string) {
+func analyzeDiagCode(s string) (res Result, err error) {
 	var (
 		statusRegexp = regexp.MustCompile(`^\d\.\d\.\d+$`)
 	)
 
-	status = statusNotFound
+	//status := statusNotFound
 
 	//вначале идет smtp;
 	parts := strings.Split(strings.TrimSpace(strings.TrimPrefix(s, "smtp;")), " ")
 
 	if len(parts) > 1 {
-		if len(parts[0]) <= 3 {
-			code, _ = parseCode(parts[0])
+		if len(parts[0]) <= SMTPCodeLen {
+			res.SMTPCode = parseCode(parts[0])
 
 			if statusRegexp.MatchString(parts[1]) {
-				status = parts[1]
-				message = strings.Join(parts[2:], " ")
+				res.SMTPStatus = parts[1]
+				res.Reason = strings.Join(parts[2:], " ")
 			} else {
-				message = strings.Join(parts[1:], " ")
+				res.Reason = strings.Join(parts[1:], " ")
 			}
 		} else {
 			allOther := parts[1:]
 			dashedCode := strings.Split(parts[0], "-")
 
 			if len(dashedCode) > 1 {
-				code, _ = parseCode(dashedCode[0])
+				res.SMTPCode = parseCode(dashedCode[0])
 
 				if statusRegexp.MatchString(dashedCode[1]) {
-					status = dashedCode[1]
+					res.SMTPStatus = dashedCode[1]
 				} else {
+					res.SMTPStatus = statusNotFound
 					allOther = append([]string{dashedCode[1]}, allOther...)
 				}
 			}
-			message = strings.Join(allOther, " ")
+			res.Reason = strings.Join(allOther, " ")
 		}
 	} else {
-		return 0, status, "Unknown diagnostic code"
+		err = errors.New("unable to parse diagnostic code")
 	}
 
-	return code, status, message
+	return res, err
 }
 
-func parseCode(s string) (code int, err error) {
+func parseCode(s string) (code int) {
 	if str, err := strconv.ParseInt(s, 10, 32); err == nil {
-		return int(str), nil
+		return int(str)
 	}
 
-	return 0, err
+	return 0
 }
