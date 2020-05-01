@@ -15,15 +15,6 @@ const (
 	unrouteableString = "unrouteable address"
 )
 
-//Тип баунса
-//type BounceType int
-//
-//const (
-//	Soft BounceType = 0
-//	Hard BounceType = 1
-//)
-//
-//type SMTPCode string
 //
 //const (
 //	ServiceNotAvailable    SMTPCode = "421"
@@ -54,6 +45,15 @@ type Result struct {
 	SMTPCode   int
 	SMTPStatus string
 	Reason     string
+}
+
+type RecordInfo struct {
+	Domain     string `json:"domain"`
+	Reason     string `json:"reason"`
+	Reporter   string `json:"reporter"`
+	SMTPCode   int    `json:"code"`
+	SMTPStatus string `json:"status"`
+	Date       string `json:"date"`
 }
 
 func Analyze(body []byte) Result {
