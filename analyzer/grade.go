@@ -14,13 +14,49 @@ import (
 //	Date       string `json:"date"`
 //}
 
+const (
+	MailFormatError int = 0
+	DNSError        int = 0
+	iCLoudFull      int = 86400 * 7
+	iCloudBan       int = 0
+	RateLimit       int = 0
+	DomainRateLimit int = 0
+	SpamBLock       int = 86400
+	OverQuota       int = 86400
+	Disabled        int = 86400 * 3
+	NoSuchUser      int = 86400 * 7
+)
+
+var llString = []string{
+	"line length exceeded",
+	"line too long",
+}
+
+var lackDNSStrings = []string{
+	"mx record",
+	" dkim",
+	" spf ",
+	"find your",
+}
+
 func DetermineReason(r *RecordInfo) (ttl int, err error) {
 	reason := normalizeMessage(r.Reason)
+
+	switch {
+	case icloudOverquota(reason, r):
+		ttl = iCLoudFull
+	case findSubstring(reason, llString):
+		ttl = MailFormatError
+	case findSubstring(reason, lackDNSStrings):
+		ttl = DNSError
+	default:
+		ttl = 0
+	}
 
 	return 0, nil
 }
 
-//Нужен рефакторинг. Здесь адов пипец
+//Нужен рефакторинг. Здесь адова чертовщина.
 func normalizeMessage(reason string) string {
 	bogusSymbols := [4]string{"'", "\"", ",", ":"}
 	emailRegexp := regexp.MustCompile(`<?\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b>?`)
@@ -48,4 +84,21 @@ func normalizeMessage(reason string) string {
 	reason = strings.TrimSpace(reason)
 
 	return reason
+}
+
+//Определение iCloud overquota.
+func icloudOverquota(s string, r *RecordInfo) bool {
+	return (r.Domain == "icloud.com" || r.Domain == "me.com") &&
+		r.SMTPCode == 450 &&
+		r.SMTPStatus == "4.2.2" &&
+		strings.Contains(s, "overquota")
+}
+
+func findSubstring(s string, arr []string) bool {
+	for _, i := range arr {
+		if strings.Contains(s, i) {
+			return true
+		}
+	}
+	return false
 }

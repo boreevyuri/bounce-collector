@@ -1,0 +1,48 @@
+0. Привести в нижний регистр
+1. Убрать кавычки, запятые, двоеточия - ('|"|,|:)
+2. Откинуть "retry timeout exceeded"
+3. Откинуть почтовые адреса <?\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b>?
+4. Заменить дефисы на пробелы (-+)
+5. тримнуть пробелы до одного (  +) -> ( )
+6. Убрать решетку у номеров ошибок #(\d\.\d\.\d+) -> $1
+
+0. Format Errors
+Maximum line length exceeded
+Line Too Long
+
+
+1. DNS Errors
+(MX record|DKIM|SPF|find your)
+
+2. icloud?
+.+ipcheck.proofpoint.com.+$
+
+3. Rate limit
+4XX - приостановить
+too many - тормознуть на домен
+rate
+
+3. Spam block
+\d\d\d .+(spam|dnsbl|abus|reputat|policy|blacklis|securit|TenantAttribution|banned|complain|outside|prohibit|RDENY|allow|aiuthentic|permiso).*$
+.+sender.+denied.*$
+Relay access denied
+Service refuse
+rejected by recipients
+^not$
+
+4. OverQuota
+.+(quota).*$
+Mailbox.+limit
+
+5. Inactive / Disabled
+.+(inactive|blocked|expired|suspend|frozen|disabled|locked|enable)
+
+6. No such user
+.+(invalid|unknown|rejected|bad|unavailable).*$
+.*(no such).*$
+.*(not).*$
+no mailbox
+no longer available
+Unrouteable address
+delivery error dd
+Server disconnected
