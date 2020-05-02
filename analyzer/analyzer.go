@@ -8,37 +8,14 @@ import (
 )
 
 const (
-	statusNotFound    = "0.0.0"
-	BadEmailAddress   = "5.1.1"
-	diagCodeHeader    = "diagnostic-code:"
-	SMTPCodeLen       = 3
-	unrouteableString = "unrouteable address"
+	statusNotFound     = "0.0.0"
+	BadEmailAddress    = "5.1.1"
+	diagCodeHeader     = "diagnostic-code:"
+	SMTPCodeLen        = 3
+	unrouteableString  = "unrouteable address"
+	nonExistentString  = "all relevant mx records point to non-existent hosts"
+	nonExistSMTPString = "an mx or srv record indicated no smtp service"
 )
-
-//
-//const (
-//	ServiceNotAvailable    SMTPCode = "421"
-//	MailActionNotTaken     SMTPCode = "450"
-//	ErrorProcessing        SMTPCode = "451"
-//	InsufficientStorage    SMTPCode = "452"
-//	AuthFailed             SMTPCode = "454"
-//	CmdSyntaxError         SMTPCode = "500"
-//	ArgumentsSyntaxError   SMTPCode = "501"
-//	CmdNotImplemented      SMTPCode = "502"
-//	BadCmdSequence         SMTPCode = "503"
-//	CmdParamNotImplemented SMTPCode = "504"
-//	BadEmailAddress        SMTPCode = "511"
-//	SpamDetected           SMTPCode = "535"
-//	MailboxInactive        SMTPCode = "540"
-//	MessageRejected        SMTPCode = "541"
-//	SpamSuspected          SMTPCode = "543"
-//	MailboxUnavailable     SMTPCode = "550"
-//	RecipientNotLocal      SMTPCode = "551"
-//	ExceededStorageAlloc   SMTPCode = "552"
-//	MailboxNameInvalid     SMTPCode = "553"
-//	TransactionFailed      SMTPCode = "554"
-//	TransactionProhibited  SMTPCode = "571"
-//)
 
 type Result struct {
 	//Type	BounceType
@@ -94,7 +71,25 @@ func findBounceMessage(body []byte) (res Result, err error) {
 		if strings.EqualFold(line, unrouteableString) {
 			res.SMTPCode = 550
 			res.SMTPStatus = BadEmailAddress
-			res.Reason = "Unrouteable address"
+			res.Reason = unrouteableString
+
+			break
+		}
+
+		// Проверка на MX records point to non-existent hosts
+		if strings.EqualFold(line, nonExistentString) {
+			res.SMTPCode = 550
+			res.SMTPStatus = BadEmailAddress
+			res.Reason = unrouteableString
+
+			break
+		}
+
+		// Проверка на an MX or SRV record indicated no SMTP service
+		if strings.EqualFold(line, nonExistSMTPString) {
+			res.SMTPCode = 550
+			res.SMTPStatus = BadEmailAddress
+			res.Reason = unrouteableString
 
 			break
 		}

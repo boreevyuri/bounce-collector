@@ -5,15 +5,6 @@ import (
 	"strings"
 )
 
-//type RecordInfo struct {
-//	Domain     string `json:"domain"`
-//	Reason     string `json:"reason"`
-//	Reporter   string `json:"reporter"`
-//	SMTPCode   int    `json:"code"`
-//	SMTPStatus string `json:"status"`
-//	Date       string `json:"date"`
-//}
-
 const (
 	MailFormatError int = 0
 	DNSError        int = 0
@@ -22,71 +13,40 @@ const (
 	RateLimit       int = 0
 	SpamBLock       int = 86400
 	OverQuota       int = 86400
-	Disabled        int = 86400 * 3
-	NoSuchUser      int = 86400 * 7
+	Disabled        int = 86400 * 15
+	NoSuchUser      int = 86400 * 30
+	NoSuchDomain    int = 86400 * 90
 	//DomainRateLimit int = 0
 )
 
 func DetermineReason(r *RecordInfo) (ttl int, err error) {
+	switch r.Reason {
+	case unrouteableString:
+		ttl = NoSuchDomain
+	default:
+		ttl, err = lastHopeDetermine(r)
+	}
+
+	return ttl, err
+}
+
+func lastHopeDetermine(r *RecordInfo) (ttl int, err error) {
 	var (
-		llString = []string{
-			"line length exceeded",
-			"line too long",
-		}
-
-		lackDNSStrings = []string{
-			"mx record",
-			" dkim",
-			" spf ",
-			"find your",
-		}
-
-		proofpointStrings = []string{
-			`^.+ipcheck\.proofpoint\.com.+$`,
-		}
-
-		rateLimitMessage = []string{
-			`^.*too many.*$`,
-			`^.*rate.*$`,
-		}
-
-		spamBlockMessage = []string{
-			`^.+(spam|dnsbl|abus|reputat|policy|blacklis|securit|tenantattribution|banned|complain|outside|prohibit|rdeny|allow|aiuthentic|permiso).+$`,
-			`^.+sender.+denied.*$`,
-			`^.*relay access denied.*$`,
-			`^.*service refuse.*$`,
-			`^.*rejected by recipient.*$`,
+		llString          = []string{"line length exceeded", "line too long"}
+		lackDNSStrings    = []string{"mx record", " dkim", " spf ", "find your"}
+		proofpointStrings = []string{`^.+ipcheck\.proofpoint\.com.+$`}
+		rateLimitMessage  = []string{`^.*too many.*$`, `^.*rate.*$`}
+		spamBlockMessage  = []string{
+			`^.+(spam|dnsbl|abus|reputat|policy|blacklis|securit|tenantattribution|banned|complain|outside|prohibit|rdeny|allow|aiuthentic|permiso).+$`, //nolint:lll
+			`^.+sender.+denied.*$`, `^.*relay access denied.*$`, `^.*service refuse.*$`, `^.*rejected by recipient.*$`,
 			`^not$`,
 		}
-
-		overQuotaMessage = []string{
-			`^.*quota.*$`,
-			`^.*mailbox.+limit.*$`,
+		overQuotaMessage = []string{`^.*quota.*$`, `^.*mailbox.+limit.*$`}
+		disabledMessage  = []string{`^.*(inactive|blocked|expired|suspend|frozen|disabled|locked|enable).*$`}
+		absentMessage    = []string{`^.*(invalid|unknown|rejected|bad|unavailable).*$`, `^.*(no such).*$`, `^.*not.*$`,
+			`^.*no mailbox.*$`, `^.*no longer available.*$`, `^.*unrouteable address.*$`,
+			`^.*delivery error dd.*$`, `^.*server disconnected.*$`,
 		}
-
-		disabledMessage = []string{
-			`^.*(inactive|blocked|expired|suspend|frozen|disabled|locked|enable).*$`,
-		}
-
-		absentMessage = []string{
-			`^.*(invalid|unknown|rejected|bad|unavailable).*$`,
-			`^.*(no such).*$`,
-			`^.*not.*$`,
-			`^.*no mailbox.*$`,
-			`^.*no longer available.*$`,
-			`^.*unrouteable address.*$`,
-			`^.*delivery error dd.*$`,
-			`^.*server disconnected.*$`,
-		}
-
-		//messagesArray = [][]string{
-		//	proofpointStrings,
-		//	rateLimitMessage,
-		//	spamBlockMessage,
-		//	overQuotaMessage,
-		//	disabledMessage,
-		//	absentMessage,
-		//}
 	)
 
 	reason := normalizeMessage(r.Reason)
