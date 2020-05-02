@@ -20,26 +20,75 @@ const (
 	iCLoudFull      int = 86400 * 7
 	iCloudBan       int = 0
 	RateLimit       int = 0
-	DomainRateLimit int = 0
 	SpamBLock       int = 86400
 	OverQuota       int = 86400
 	Disabled        int = 86400 * 3
 	NoSuchUser      int = 86400 * 7
+	//DomainRateLimit int = 0
 )
 
-var llString = []string{
-	"line length exceeded",
-	"line too long",
-}
-
-var lackDNSStrings = []string{
-	"mx record",
-	" dkim",
-	" spf ",
-	"find your",
-}
-
 func DetermineReason(r *RecordInfo) (ttl int, err error) {
+	var (
+		llString = []string{
+			"line length exceeded",
+			"line too long",
+		}
+
+		lackDNSStrings = []string{
+			"mx record",
+			" dkim",
+			" spf ",
+			"find your",
+		}
+
+		proofpointStrings = []string{
+			`^.+ipcheck\.proofpoint\.com.+$`,
+		}
+
+		rateLimitMessage = []string{
+			`^.*too many.*$`,
+			`^.*rate.*$`,
+		}
+
+		spamBlockMessage = []string{
+			`^.+(spam|dnsbl|abus|reputat|policy|blacklis|securit|tenantattribution|banned|complain|outside|prohibit|rdeny|allow|aiuthentic|permiso).+$`,
+			`^.+sender.+denied.*$`,
+			`^.*relay access denied.*$`,
+			`^.*service refuse.*$`,
+			`^.*rejected by recipient.*$`,
+			`^not$`,
+		}
+
+		overQuotaMessage = []string{
+			`^.*quota.*$`,
+			`^.*mailbox.+limit.*$`,
+		}
+
+		disabledMessage = []string{
+			`^.*(inactive|blocked|expired|suspend|frozen|disabled|locked|enable).*$`,
+		}
+
+		absentMessage = []string{
+			`^.*(invalid|unknown|rejected|bad|unavailable).*$`,
+			`^.*(no such).*$`,
+			`^.*not.*$`,
+			`^.*no mailbox.*$`,
+			`^.*no longer available.*$`,
+			`^.*unrouteable address.*$`,
+			`^.*delivery error dd.*$`,
+			`^.*server disconnected.*$`,
+		}
+
+		//messagesArray = [][]string{
+		//	proofpointStrings,
+		//	rateLimitMessage,
+		//	spamBlockMessage,
+		//	overQuotaMessage,
+		//	disabledMessage,
+		//	absentMessage,
+		//}
+	)
+
 	reason := normalizeMessage(r.Reason)
 
 	switch {
@@ -49,11 +98,23 @@ func DetermineReason(r *RecordInfo) (ttl int, err error) {
 		ttl = MailFormatError
 	case findSubstring(reason, lackDNSStrings):
 		ttl = DNSError
+	case stringMatchAnyRegex(reason, proofpointStrings):
+		ttl = iCloudBan
+	case stringMatchAnyRegex(reason, rateLimitMessage):
+		ttl = RateLimit
+	case stringMatchAnyRegex(reason, spamBlockMessage):
+		ttl = SpamBLock
+	case stringMatchAnyRegex(reason, overQuotaMessage):
+		ttl = OverQuota
+	case stringMatchAnyRegex(reason, disabledMessage):
+		ttl = Disabled
+	case stringMatchAnyRegex(reason, absentMessage):
+		ttl = NoSuchUser
 	default:
 		ttl = 0
 	}
 
-	return 0, nil
+	return ttl, nil
 }
 
 //Нужен рефакторинг. Здесь адова чертовщина.
@@ -94,11 +155,27 @@ func icloudOverquota(s string, r *RecordInfo) bool {
 		strings.Contains(s, "overquota")
 }
 
+func stringMatchAnyRegex(ss string, regexes []string) bool {
+	for _, re := range regexes {
+		result, err := regexp.MatchString(re, ss)
+		if err != nil {
+			panic(err)
+		}
+
+		if result {
+			return true
+		}
+	}
+
+	return false
+}
+
 func findSubstring(s string, arr []string) bool {
 	for _, i := range arr {
 		if strings.Contains(s, i) {
 			return true
 		}
 	}
+
 	return false
 }

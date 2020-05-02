@@ -5,5 +5,6 @@ func SetTTL(r *RecordInfo) int {
 	if err != nil {
 		return 0
 	}
+
 	return ttl
 }
