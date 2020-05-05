@@ -11,7 +11,7 @@ const (
 	iCLoudFull      int = 86400 * 7
 	iCloudBan       int = 0
 	RateLimit       int = 0
-	SpamBLock       int = 86400
+	SpamBLock       int = 0
 	OverQuota       int = 86400
 	Disabled        int = 86400 * 15
 	NoSuchUser      int = 86400 * 30
