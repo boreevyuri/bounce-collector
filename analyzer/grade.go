@@ -50,29 +50,33 @@ func lastHopeDetermine(r *RecordInfo) (ttl time.Duration, err error) {
 		}
 	)
 
-	reason := normalizeMessage(r.Reason)
-
-	switch {
-	case icloudOverquota(reason, r):
-		ttl = iCLoudFull
-	case findSubstring(reason, llString):
-		ttl = MailFormatError
-	case findSubstring(reason, lackDNSStrings):
-		ttl = DNSError
-	case stringMatchAnyRegex(reason, proofpointStrings):
-		ttl = iCloudBan
-	case stringMatchAnyRegex(reason, rateLimitMessage):
-		ttl = RateLimit
-	case stringMatchAnyRegex(reason, spamBlockMessage):
+	if failedSpamDelivery(r) {
 		ttl = SpamBLock
-	case stringMatchAnyRegex(reason, overQuotaMessage):
-		ttl = OverQuota
-	case stringMatchAnyRegex(reason, disabledMessage):
-		ttl = Disabled
-	case stringMatchAnyRegex(reason, absentMessage):
-		ttl = NoSuchUser
-	default:
-		ttl = 0
+	} else {
+		reason := normalizeMessage(r.Reason)
+
+		switch {
+		case icloudOverquota(reason, r):
+			ttl = iCLoudFull
+		case findSubstring(reason, llString):
+			ttl = MailFormatError
+		case findSubstring(reason, lackDNSStrings):
+			ttl = DNSError
+		case stringMatchAnyRegex(reason, proofpointStrings):
+			ttl = iCloudBan
+		case stringMatchAnyRegex(reason, rateLimitMessage):
+			ttl = RateLimit
+		case stringMatchAnyRegex(reason, spamBlockMessage):
+			ttl = SpamBLock
+		case stringMatchAnyRegex(reason, overQuotaMessage):
+			ttl = OverQuota
+		case stringMatchAnyRegex(reason, disabledMessage):
+			ttl = Disabled
+		case stringMatchAnyRegex(reason, absentMessage):
+			ttl = NoSuchUser
+		default:
+			ttl = 0
+		}
 	}
 
 	return ttl, nil
@@ -139,4 +143,9 @@ func findSubstring(s string, arr []string) bool {
 	}
 
 	return false
+}
+
+// yandex.ru 451 4.7.1 - spam block.
+func failedSpamDelivery(r *RecordInfo) bool {
+	return r.SMTPCode == 451 && r.SMTPStatus == "4.7.1"
 }
