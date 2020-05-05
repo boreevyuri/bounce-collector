@@ -1,0 +1,10 @@
+redis:
+  address: 127.0.0.1:6379
+  password: testtest
+
+fast-check:
+  - yandex.ru:
+      code: 451
+      status: 4.7.1
+      action: pass
+      ttl: 0

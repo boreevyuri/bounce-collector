@@ -3,28 +3,37 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/boreevyuri/bounce-collector/analyzer"
 	"github.com/boreevyuri/bounce-collector/writer"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/mail"
 	"os"
 	"strings"
 )
 
-//// Структура записи в БД
-//type Record struct {
-//	Rcpt string
-//	TTL  int
-//	Info string
-//}
-
 const (
-	success   int = 0
-	failRedis int = 2
+	ExampleConfig     = "./bounce-collector.conf"
+	success       int = 0
+	failRedis     int = 2
 )
 
+type conf struct {
+	Redis writer.Config `yaml:"redis"`
+}
+
 func main() {
+	var file string
+
+	flag.StringVar(&file, "f", ExampleConfig, "configuration file")
+	flag.Parse()
+
+	var config conf
+
+	config.getConf(file)
+
 	var m *mail.Message
 
 	data, err := os.Stdin.Stat()
@@ -81,7 +90,7 @@ func main() {
 		Info: marshalInfo(messageInfo),
 	}
 
-	err = writer.PutRecord(record)
+	err = writer.PutRecord(record, config.Redis)
 	if err != nil {
 		fmt.Printf("Collector error: %+v", err)
 		os.Exit(failRedis)
@@ -117,4 +126,28 @@ func parseFrom(s string) string {
 	}
 
 	return e.Address
+}
+
+func isValidConfigFilename(filename string) bool {
+	return len(filename) > 0
+}
+
+func (c *conf) getConf(filename string) *conf {
+	if isValidConfigFilename(filename) {
+		yamlFile, err := ioutil.ReadFile(filename)
+		if err != nil {
+			panic("no config file specified")
+		}
+
+		err = yaml.Unmarshal(yamlFile, c)
+
+		if err != nil {
+			fmt.Println(yamlFile)
+			panic("Invalid config")
+		}
+
+		return c
+	}
+
+	return nil
 }

@@ -16,3 +16,4 @@
 .idea
 test-mail.eml
 test
+*.config
