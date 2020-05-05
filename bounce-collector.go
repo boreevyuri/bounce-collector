@@ -4,19 +4,25 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	. "github.com/boreevyuri/bounce-collector/analyzer"
+	"github.com/boreevyuri/bounce-collector/analyzer"
+	"github.com/boreevyuri/bounce-collector/writer"
 	"io/ioutil"
 	"net/mail"
 	"os"
 	"strings"
 )
 
-// Структура записи в БД
-type Record struct {
-	Rcpt string
-	TTL  int
-	Info string
-}
+//// Структура записи в БД
+//type Record struct {
+//	Rcpt string
+//	TTL  int
+//	Info string
+//}
+
+const (
+	success   int = 0
+	failRedis int = 2
+)
 
 func main() {
 	var m *mail.Message
@@ -58,9 +64,9 @@ func main() {
 
 	//Забираем тело на анализы
 	body, _ := ioutil.ReadAll(m.Body)
-	res := Analyze(body)
+	res := analyzer.Analyze(body)
 
-	messageInfo := &RecordInfo{
+	messageInfo := &analyzer.RecordInfo{
 		Domain:     domain,
 		Reason:     res.Reason,
 		Reporter:   reporter,
@@ -69,17 +75,22 @@ func main() {
 		Date:       date,
 	}
 
-	record := &Record{
+	record := &writer.Record{
 		Rcpt: rcpt,
-		TTL:  SetTTL(messageInfo),
+		TTL:  analyzer.SetTTL(messageInfo),
 		Info: marshalInfo(messageInfo),
 	}
-	//writer.RedisClient()
-	//fmt.Printf("SMTP code: %d, Status: %s, Message: %s\n", res.SMTPCode, res.SMTPStatus, res.Reason)
-	fmt.Printf("%v", record)
+
+	err = writer.PutRecord(record)
+	if err != nil {
+		fmt.Printf("Collector error: %+v", err)
+		os.Exit(failRedis)
+	}
+
+	os.Exit(success)
 }
 
-func marshalInfo(r *RecordInfo) string {
+func marshalInfo(r *analyzer.RecordInfo) string {
 	e, err := json.Marshal(r)
 	if err != nil {
 		return ""

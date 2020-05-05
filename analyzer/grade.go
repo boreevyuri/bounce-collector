@@ -3,23 +3,24 @@ package analyzer
 import (
 	"regexp"
 	"strings"
+	"time"
 )
 
 const (
-	MailFormatError int = 0
-	DNSError        int = 0
-	iCLoudFull      int = 86400 * 7
-	iCloudBan       int = 0
-	RateLimit       int = 0
-	SpamBLock       int = 0
-	OverQuota       int = 86400
-	Disabled        int = 86400 * 15
-	NoSuchUser      int = 86400 * 30
-	NoSuchDomain    int = 86400 * 90
+	MailFormatError = 0 * time.Second
+	DNSError        = 0 * time.Second
+	iCLoudFull      = 7 * 24 * time.Hour
+	iCloudBan       = 0 * time.Second
+	RateLimit       = 0 * time.Second
+	SpamBLock       = 0 * time.Second
+	OverQuota       = 24 * time.Hour
+	Disabled        = 15 * 24 * time.Hour
+	NoSuchUser      = 30 * 24 * time.Hour
+	NoSuchDomain    = 90 * 24 * time.Hour
 	//DomainRateLimit int = 0
 )
 
-func DetermineReason(r *RecordInfo) (ttl int, err error) {
+func DetermineReason(r *RecordInfo) (ttl time.Duration, err error) {
 	switch r.Reason {
 	case unrouteableString:
 		ttl = NoSuchDomain
@@ -30,7 +31,7 @@ func DetermineReason(r *RecordInfo) (ttl int, err error) {
 	return ttl, err
 }
 
-func lastHopeDetermine(r *RecordInfo) (ttl int, err error) {
+func lastHopeDetermine(r *RecordInfo) (ttl time.Duration, err error) {
 	var (
 		llString          = []string{"line length exceeded", "line too long"}
 		lackDNSStrings    = []string{"mx record", " dkim", " spf ", "find your"}

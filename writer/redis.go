@@ -1,42 +1,35 @@
 package writer
 
 import (
-	"fmt"
 	"github.com/go-redis/redis"
+	"time"
 )
 
-//func redisWrite(res analyzer.Result) {
-//
-//}
+// Структура записи в БД
+type Record struct {
+	Rcpt string
+	TTL  time.Duration
+	Info string
+}
 
-func RedisClient() {
+func rClient() *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6379",
 		Password: "",
 		DB:       0,
 	})
 
-	err := client.Set("key", "value", 0).Err()
-	if err != nil {
-		panic(err)
+	return client
+}
+
+func PutRecord(rec *Record) (err error) {
+	client := rClient()
+
+	if rec.TTL > 0 {
+		err = client.Set(rec.Rcpt, rec.Info, rec.TTL).Err()
 	}
 
-	val, err := client.Get("key").Result()
-	if err != nil {
-		panic(err)
-	}
+	_ = client.Close()
 
-	fmt.Println("key", val)
-
-	val2, err := client.Get("key2").Result()
-
-	switch err {
-	case redis.Nil:
-		fmt.Println("key2 does not exist")
-	case nil:
-		fmt.Println("key2", val2)
-	default:
-		panic(err)
-	}
-	return
+	return err
 }
