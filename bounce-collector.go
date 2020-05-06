@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/boreevyuri/bounce-collector/analyzer"
@@ -56,7 +55,7 @@ func main() {
 	record = writer.Record{
 		Rcpt: rcpt,
 		TTL:  analyzer.SetTTL(messageInfo),
-		Info: marshalInfo(messageInfo),
+		Info: messageInfo,
 	}
 
 	err := writer.PutRecord(record, config.Redis)
@@ -100,15 +99,6 @@ func readInput() (m *mail.Message) {
 	return m
 }
 
-func marshalInfo(r analyzer.RecordInfo) string {
-	e, err := json.Marshal(r)
-	if err != nil {
-		return ""
-	}
-
-	return string(e)
-}
-
 func getDomainFromAddress(addr string) string {
 	a := strings.Split(addr, "@")
 	if len(a) > 1 {
@@ -135,7 +125,8 @@ func (c *conf) getConf(filename string) *conf {
 	if isValidConfigFilename(filename) {
 		yamlFile, err := ioutil.ReadFile(filename)
 		if err != nil {
-			panic("no config file specified")
+			fmt.Println("no config file specified")
+			os.Exit(failConfig)
 		}
 
 		err = yaml.Unmarshal(yamlFile, c)
