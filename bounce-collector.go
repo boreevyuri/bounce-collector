@@ -68,28 +68,34 @@ func main() {
 }
 
 func readInput() (m *mail.Message) {
+	var reader *bufio.Reader
+
 	inputData, err := os.Stdin.Stat()
 	if err != nil {
 		panic(err)
 	}
 
 	if (inputData.Mode() & os.ModeNamedPipe) == 0 {
-		file, err := ioutil.ReadFile(os.Args[3])
+		file, err := os.Open(os.Args[3])
 		if err != nil {
 			fmt.Println("Usage:")
-			fmt.Println("bounce-collector file.eml")
+			fmt.Println("bounce-collector -f config.yaml file.eml")
 			fmt.Println("or")
-			fmt.Println("cat file.eml | bounce-collector")
+			fmt.Println("cat file.eml | bounce-collector -f config.yaml")
 			os.Exit(runError)
 		}
 
-		reader := strings.NewReader(string(file))
-		m, _ = mail.ReadMessage(reader)
+		defer func() {
+			if err := file.Close(); err != nil {
+				os.Exit(runError)
+			}
+		}()
 
-		return m
+		reader = bufio.NewReader(file)
+	} else {
+		reader = bufio.NewReader(os.Stdin)
 	}
 
-	reader := bufio.NewReader(os.Stdin)
 	m, err = mail.ReadMessage(reader)
 
 	if err != nil {
