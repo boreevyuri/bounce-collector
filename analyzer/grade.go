@@ -20,7 +20,7 @@ const (
 	//DomainRateLimit int = 0
 )
 
-func DetermineReason(r *RecordInfo) (ttl time.Duration, err error) {
+func DetermineReason(r RecordInfo) (ttl time.Duration, err error) {
 	switch r.Reason {
 	case unrouteableString:
 		ttl = NoSuchDomain
@@ -31,7 +31,7 @@ func DetermineReason(r *RecordInfo) (ttl time.Duration, err error) {
 	return ttl, err
 }
 
-func lastHopeDetermine(r *RecordInfo) (ttl time.Duration, err error) {
+func lastHopeDetermine(r RecordInfo) (ttl time.Duration, err error) {
 	var (
 		llString          = []string{"line length exceeded", "line too long"}
 		lackDNSStrings    = []string{"mx record", " dkim", " spf ", "find your"}
@@ -113,7 +113,7 @@ func normalizeMessage(reason string) string {
 }
 
 //Определение iCloud overquota.
-func icloudOverquota(s string, r *RecordInfo) bool {
+func icloudOverquota(s string, r RecordInfo) bool {
 	return (r.Domain == "icloud.com" || r.Domain == "me.com") &&
 		r.SMTPCode == 450 &&
 		r.SMTPStatus == "4.2.2" &&
@@ -146,6 +146,6 @@ func findSubstring(s string, arr []string) bool {
 }
 
 // yandex.ru 451 4.7.1 - spam block.
-func failedSpamDelivery(r *RecordInfo) bool {
+func failedSpamDelivery(r RecordInfo) bool {
 	return r.SMTPCode == 451 && r.SMTPStatus == "4.7.1"
 }

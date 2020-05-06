@@ -17,7 +17,9 @@ import (
 const (
 	ExampleConfig     = "./bounce-collector.conf"
 	success       int = 0
-	failRedis     int = 2
+	runError      int = 1
+	failConfig    int = 13
+	failRedis     int = 12
 )
 
 type conf struct {
@@ -25,72 +27,39 @@ type conf struct {
 }
 
 func main() {
-	var file string
+	var (
+		file        string
+		config      conf
+		messageInfo analyzer.RecordInfo
+		record      writer.Record
+	)
 
 	flag.StringVar(&file, "f", ExampleConfig, "configuration file")
 	flag.Parse()
 
-	var config conf
-
 	config.getConf(file)
 
-	var m *mail.Message
-
-	data, err := os.Stdin.Stat()
-	if err != nil {
-		panic(err)
-	}
-
-	if (data.Mode() & os.ModeNamedPipe) == 0 {
-		file, err := ioutil.ReadFile(os.Args[1])
-		if err != nil {
-			fmt.Println("Usage:")
-			fmt.Println("bounce-collector file.eml")
-			fmt.Println("or")
-			fmt.Println("cat file.eml | bounce-collector")
-			panic(err)
-		}
-
-		reader := strings.NewReader(string(file))
-		m, err = mail.ReadMessage(reader)
-
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		reader := bufio.NewReader(os.Stdin)
-		m, err = mail.ReadMessage(reader)
-
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	//Достаем реципиента из X-Failed-Recipients
-	rcpt, domain := getFailedRcpt(m.Header)
-	reporter := parseFrom(m.Header.Get("From"))
-	date := m.Header.Get("Date")
-
-	//Забираем тело на анализы
+	m := readInput()
+	rcpt := m.Header.Get("X-Failed-Recipients")
 	body, _ := ioutil.ReadAll(m.Body)
 	res := analyzer.Analyze(body)
 
-	messageInfo := &analyzer.RecordInfo{
-		Domain:     domain,
-		Reason:     res.Reason,
-		Reporter:   reporter,
+	messageInfo = analyzer.RecordInfo{
+		Domain:     getDomainFromAddress(rcpt),
 		SMTPCode:   res.SMTPCode,
 		SMTPStatus: res.SMTPStatus,
-		Date:       date,
+		Reason:     res.Reason,
+		Date:       m.Header.Get("Date"),
+		Reporter:   parseFrom(m.Header.Get("From")),
 	}
 
-	record := &writer.Record{
+	record = writer.Record{
 		Rcpt: rcpt,
 		TTL:  analyzer.SetTTL(messageInfo),
 		Info: marshalInfo(messageInfo),
 	}
 
-	err = writer.PutRecord(record, config.Redis)
+	err := writer.PutRecord(record, config.Redis)
 	if err != nil {
 		fmt.Printf("Collector error: %+v", err)
 		os.Exit(failRedis)
@@ -99,7 +68,39 @@ func main() {
 	os.Exit(success)
 }
 
-func marshalInfo(r *analyzer.RecordInfo) string {
+func readInput() (m *mail.Message) {
+	inputData, err := os.Stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
+
+	if (inputData.Mode() & os.ModeNamedPipe) == 0 {
+		file, err := ioutil.ReadFile(os.Args[3])
+		if err != nil {
+			fmt.Println("Usage:")
+			fmt.Println("bounce-collector file.eml")
+			fmt.Println("or")
+			fmt.Println("cat file.eml | bounce-collector")
+			os.Exit(runError)
+		}
+
+		reader := strings.NewReader(string(file))
+		m, _ = mail.ReadMessage(reader)
+
+		return m
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	m, err = mail.ReadMessage(reader)
+
+	if err != nil {
+		os.Exit(runError)
+	}
+
+	return m
+}
+
+func marshalInfo(r analyzer.RecordInfo) string {
 	e, err := json.Marshal(r)
 	if err != nil {
 		return ""
@@ -108,15 +109,13 @@ func marshalInfo(r *analyzer.RecordInfo) string {
 	return string(e)
 }
 
-func getFailedRcpt(h mail.Header) (addr string, domain string) {
-	addr = strings.ToLower(h.Get("X-Failed-Recipients"))
-	components := strings.Split(addr, "@")
-
-	if len(components) == 2 {
-		return addr, components[1]
+func getDomainFromAddress(addr string) string {
+	a := strings.Split(addr, "@")
+	if len(a) > 1 {
+		return a[1]
 	}
 
-	return addr, "unknown"
+	return "unknown.tld"
 }
 
 func parseFrom(s string) string {
@@ -143,7 +142,7 @@ func (c *conf) getConf(filename string) *conf {
 
 		if err != nil {
 			fmt.Println(yamlFile)
-			panic("Invalid config")
+			os.Exit(failConfig)
 		}
 
 		return c

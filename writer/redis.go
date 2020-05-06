@@ -17,7 +17,7 @@ type Config struct {
 	Password string `yaml:"password"`
 }
 
-func PutRecord(rec *Record, config Config) (err error) {
+func PutRecord(rec Record, config Config) (err error) {
 	client := rClient(config)
 
 	if rec.TTL > 0 {
