@@ -111,7 +111,7 @@ func getDomainFromAddress(addr string) string {
 func parseFrom(s string) string {
 	e, err := mail.ParseAddress(s)
 	if err != nil {
-		return "unknown@unknown.domain"
+		return "unknown@unknown.tld"
 	}
 
 	return e.Address
