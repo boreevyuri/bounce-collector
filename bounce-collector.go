@@ -65,7 +65,7 @@ func processMail(fileName string, redis writer.Config) {
 	)
 
 	m := readInput(fileName)
-	rcpt := m.Header.Get("X-Failed-Recipients")
+	rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
 	body, _ := ioutil.ReadAll(m.Body)
 	res := analyzer.Analyze(body)
 

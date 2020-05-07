@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/boreevyuri/bounce-collector/analyzer"
 	"github.com/go-redis/redis"
+	"strings"
 	"time"
 )
 
@@ -34,7 +35,7 @@ func PutRecord(rec Record, config Config) (err error) {
 func IsPresent(addr string, config Config) (res bool) {
 	client := rClient(config)
 
-	_, err := client.Get(addr).Result()
+	_, err := client.Get(strings.ToLower(addr)).Result()
 	if err == redis.Nil {
 		res = false
 	} else {
