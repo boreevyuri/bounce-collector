@@ -31,6 +31,22 @@ func PutRecord(rec Record, config Config) (err error) {
 	return err
 }
 
+func IsPresent(addr string, config Config) (res bool) {
+	client := rClient(config)
+
+	_, err := client.Get(addr).Result()
+	if err == redis.Nil {
+		res = false
+	} else {
+		res = true
+		//fmt.Println(v)
+	}
+
+	_ = client.Close()
+
+	return res
+}
+
 func rClient(config Config) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     config.Addr,

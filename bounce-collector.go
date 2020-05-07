@@ -27,18 +27,44 @@ type conf struct {
 
 func main() {
 	var (
-		file        string
-		config      conf
+		confFile  string
+		checkAddr string
+		config    conf
+	)
+
+	flag.StringVar(&confFile, "c", ExampleConfig, "configuration file")
+	flag.StringVar(&checkAddr, "r", "", "email address to check existence")
+	flag.Parse()
+
+	fileName := flag.Arg(0)
+
+	config.getConf(confFile)
+
+	if len(checkAddr) == 0 {
+		processMail(fileName, config.Redis)
+	} else {
+		msg := checkMail(checkAddr, config.Redis)
+		fmt.Println(msg)
+	}
+
+	os.Exit(success)
+}
+
+func checkMail(email string, redis writer.Config) string {
+	if writer.IsPresent(email, redis) {
+		return "Pass"
+	}
+
+	return "Decline"
+}
+
+func processMail(fileName string, redis writer.Config) {
+	var (
 		messageInfo analyzer.RecordInfo
 		record      writer.Record
 	)
 
-	flag.StringVar(&file, "f", ExampleConfig, "configuration file")
-	flag.Parse()
-
-	config.getConf(file)
-
-	m := readInput()
+	m := readInput(fileName)
 	rcpt := m.Header.Get("X-Failed-Recipients")
 	body, _ := ioutil.ReadAll(m.Body)
 	res := analyzer.Analyze(body)
@@ -58,16 +84,14 @@ func main() {
 		Info: messageInfo,
 	}
 
-	err := writer.PutRecord(record, config.Redis)
+	err := writer.PutRecord(record, redis)
 	if err != nil {
 		fmt.Printf("Collector error: %+v", err)
 		os.Exit(failRedis)
 	}
-
-	os.Exit(success)
 }
 
-func readInput() (m *mail.Message) {
+func readInput(fileName string) (m *mail.Message) {
 	var reader *bufio.Reader
 
 	inputData, err := os.Stdin.Stat()
@@ -76,7 +100,7 @@ func readInput() (m *mail.Message) {
 	}
 
 	if (inputData.Mode() & os.ModeNamedPipe) == 0 {
-		file, err := os.Open(os.Args[3])
+		file, err := os.Open(fileName)
 		if err != nil {
 			fmt.Println("Usage:")
 			fmt.Println("bounce-collector -f config.yaml file.eml")
