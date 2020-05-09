@@ -1,11 +1,11 @@
 package main
 
 import (
+	"bounce-collector/cmd/bouncer/analyzer"
+	"bounce-collector/cmd/bouncer/writer"
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/boreevyuri/bounce-collector/analyzer"
-	"github.com/boreevyuri/bounce-collector/writer"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/mail"

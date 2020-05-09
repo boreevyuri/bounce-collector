@@ -1,8 +1,8 @@
 package writer
 
 import (
+	"bounce-collector/cmd/bouncer/analyzer"
 	"encoding/json"
-	"github.com/boreevyuri/bounce-collector/analyzer"
 	"github.com/go-redis/redis"
 	"strings"
 	"time"
