@@ -14,7 +14,7 @@ rpm-build:
   script:
     - mkdir -p rpmbuild/{SOURCES,RPMS,SRPMS}
     - spectool -g -C rpmbuild/SOURCES build/bouncer.spec
-    - ls -la
+    - ls -la /root/rpmbuild/SOURCES/
     - rpmbuild -bb build/bouncer.spec
   artifacts:
     paths:
