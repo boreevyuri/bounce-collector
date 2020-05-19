@@ -14,7 +14,7 @@ rpm-build:
   script:
     - mkdir -p rpmbuild/{SOURCES,RPMS,SRPMS}
     - spectool -g -C rpmbuild/SOURCES build/bouncer.spec
-    - rpmbuild --define "_topdir `pwd`" -bb build/bouncer.spec
+    - rpmbuild --define "_topdir `pwd`/rpmbuild" -bb build/bouncer.spec
   artifacts:
     paths:
       - "*.rpm"
