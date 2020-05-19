@@ -10,9 +10,10 @@ rpm-build:
         epel-release
         git
         rpm-build
+        rpmdevtools
   script:
     - mkdir -p rpmbuild/{SOURCES, RPMS}
-#    - spectool -g build/bouncer.spec
+    - cd rpmbuild/SOURCES; spectool -g build/bouncer.spec
     - rpmbuild -bp build/bouncer.spec
   artifacts:
     paths:

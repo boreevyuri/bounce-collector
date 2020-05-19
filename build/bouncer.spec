@@ -1,4 +1,3 @@
-%define SourceDir %{name}-%{version}
 
 Name: bouncer
 Version: 0.0.1
@@ -15,13 +14,10 @@ Analyses exim bounce emails by pipe transport and puts reusult in redis.
 Also checks emails in redis and outputs "Pass" or "Decline" to use in exim router
 
 %prep
-#%autosetup -n bounce-collector-%{version}
-rm -rf %{SourceDir}
-git clone %{url}.git %{SourceDir}
-cd %{SourceDir}
+wget ${SOURCE0} -O %{_sourcedir}
+%autosetup -n bounce-collector-%{version}
 
 %build
-cd %{SourceDir}
 %{__make} build-linux_amd64
 
 %install
