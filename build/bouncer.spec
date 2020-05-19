@@ -14,7 +14,6 @@ Analyses exim bounce emails by pipe transport and puts reusult in redis.
 Also checks emails in redis and outputs "Pass" or "Decline" to use in exim router
 
 %prep
-wget ${SOURCE0} -O %{_sourcedir}
 %autosetup -n bounce-collector-%{version}
 
 %build
