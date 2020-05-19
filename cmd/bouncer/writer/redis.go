@@ -9,18 +9,20 @@ import (
 	"time"
 )
 
-// Структура записи в БД.
+// Record - struct for write to redis.
 type Record struct {
 	Rcpt string
 	TTL  time.Duration
 	Info analyzer.RecordInfo
 }
 
+// Config - struct for redis config.
 type Config struct {
 	Addr     string `yaml:"address"`
 	Password string `yaml:"password"`
 }
 
+// PutRecord puts Record to Redis db.
 func PutRecord(rec Record, config Config) (err error) {
 	client, err := rClient(config)
 
@@ -37,6 +39,7 @@ func PutRecord(rec Record, config Config) (err error) {
 	return err
 }
 
+// IsPresent checks address existence in redis db.
 func IsPresent(addr string, config Config) bool {
 	client, err := rClient(config)
 	if err != nil {

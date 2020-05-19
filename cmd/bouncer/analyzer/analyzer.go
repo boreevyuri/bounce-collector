@@ -8,15 +8,16 @@ import (
 )
 
 const (
-	statusNotFound     = "0.0.0"
-	BadEmailAddress    = "5.1.1"
-	diagCodeHeader     = "diagnostic-code:"
-	SMTPCodeLen        = 3
-	unrouteableString  = "unrouteable address"
-	nonExistentString  = "all relevant mx records point to non-existent hosts"
-	nonExistSMTPString = "an mx or srv record indicated no smtp service"
+	statusNotFound      = "0.0.0"
+	badEmailAddressCode = "5.1.1"
+	diagCodeHeader      = "diagnostic-code:"
+	smtpCodeLength      = 3
+	unrouteableString   = "unrouteable address"
+	nonExistentString   = "all relevant mx records point to non-existent hosts"
+	nonExistSMTPString  = "an mx or srv record indicated no smtp service"
 )
 
+// Result struct describes result.
 type Result struct {
 	//Type	BounceType
 	SMTPCode   int
@@ -24,6 +25,7 @@ type Result struct {
 	Reason     string
 }
 
+// RecordInfo struct describes record for every email putted in redis.
 type RecordInfo struct {
 	Domain     string `json:"domain"`
 	Reason     string `json:"reason"`
@@ -33,6 +35,7 @@ type RecordInfo struct {
 	Date       string `json:"date"`
 }
 
+// Analyze - analyses body for error messages in it.
 func Analyze(body []byte) Result {
 	if res, err := findBounceMessage(body); err == nil {
 		return res
@@ -70,7 +73,7 @@ func findBounceMessage(body []byte) (res Result, err error) {
 		// Проверка на наличие Unrouteable address
 		if strings.EqualFold(line, unrouteableString) {
 			res.SMTPCode = 550
-			res.SMTPStatus = BadEmailAddress
+			res.SMTPStatus = badEmailAddressCode
 			res.Reason = unrouteableString
 
 			break
@@ -79,7 +82,7 @@ func findBounceMessage(body []byte) (res Result, err error) {
 		// Проверка на MX records point to non-existent hosts
 		if strings.EqualFold(line, nonExistentString) {
 			res.SMTPCode = 550
-			res.SMTPStatus = BadEmailAddress
+			res.SMTPStatus = badEmailAddressCode
 			res.Reason = unrouteableString
 
 			break
@@ -88,7 +91,7 @@ func findBounceMessage(body []byte) (res Result, err error) {
 		// Проверка на an MX or SRV record indicated no SMTP service
 		if strings.EqualFold(line, nonExistSMTPString) {
 			res.SMTPCode = 550
-			res.SMTPStatus = BadEmailAddress
+			res.SMTPStatus = badEmailAddressCode
 			res.Reason = unrouteableString
 
 			break
@@ -109,7 +112,7 @@ func analyzeDiagCode(s string) (res Result, err error) {
 	parts := strings.Split(strings.TrimSpace(strings.TrimPrefix(s, "smtp;")), " ")
 
 	if len(parts) > 1 {
-		if len(parts[0]) <= SMTPCodeLen {
+		if len(parts[0]) <= smtpCodeLength {
 			res.SMTPCode = parseCode(parts[0])
 
 			if statusRegexp.MatchString(parts[1]) {

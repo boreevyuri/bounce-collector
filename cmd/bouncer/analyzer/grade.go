@@ -7,23 +7,24 @@ import (
 )
 
 const (
-	MailFormatError = 0 * time.Second
-	DNSError        = 0 * time.Second
-	iCLoudFull      = 7 * 24 * time.Hour
-	iCloudBan       = 0 * time.Second
-	RateLimit       = 0 * time.Second
-	SpamBLock       = 0 * time.Second
-	OverQuota       = 24 * time.Hour
-	Disabled        = 15 * 24 * time.Hour
-	NoSuchUser      = 30 * 24 * time.Hour
-	NoSuchDomain    = 90 * 24 * time.Hour
+	mailFormatErrorTTL = 0 * time.Second
+	dnsErrorTTL        = 0 * time.Second
+	iCLoudFullTTL      = 7 * 24 * time.Hour
+	iCloudBanTTL       = 0 * time.Second
+	rateLimitErrorTTL  = 0 * time.Second
+	spamBlockErrorTTL  = 0 * time.Second
+	overQuotaErrorTTL  = 24 * time.Hour
+	disabledErrorTTL   = 15 * 24 * time.Hour
+	noSuchUserTTL      = 30 * 24 * time.Hour
+	noSuchDomainTTL    = 90 * 24 * time.Hour
 	//DomainRateLimit int = 0
 )
 
+// DetermineReason - get "unrouteableString" or ...
 func DetermineReason(r RecordInfo) (ttl time.Duration, err error) {
 	switch r.Reason {
 	case unrouteableString:
-		ttl = NoSuchDomain
+		ttl = noSuchDomainTTL
 	default:
 		ttl, err = lastHopeDetermine(r)
 	}
@@ -51,29 +52,29 @@ func lastHopeDetermine(r RecordInfo) (ttl time.Duration, err error) {
 	)
 
 	if failedSpamDelivery(r) {
-		ttl = SpamBLock
+		ttl = spamBlockErrorTTL
 	} else {
 		reason := normalizeMessage(r.Reason)
 
 		switch {
 		case icloudOverquota(reason, r):
-			ttl = iCLoudFull
+			ttl = iCLoudFullTTL
 		case findSubstring(reason, llString):
-			ttl = MailFormatError
+			ttl = mailFormatErrorTTL
 		case findSubstring(reason, lackDNSStrings):
-			ttl = DNSError
+			ttl = dnsErrorTTL
 		case stringMatchAnyRegex(reason, proofpointStrings):
-			ttl = iCloudBan
+			ttl = iCloudBanTTL
 		case stringMatchAnyRegex(reason, rateLimitMessage):
-			ttl = RateLimit
+			ttl = rateLimitErrorTTL
 		case stringMatchAnyRegex(reason, spamBlockMessage):
-			ttl = SpamBLock
+			ttl = spamBlockErrorTTL
 		case stringMatchAnyRegex(reason, overQuotaMessage):
-			ttl = OverQuota
+			ttl = overQuotaErrorTTL
 		case stringMatchAnyRegex(reason, disabledMessage):
-			ttl = Disabled
+			ttl = disabledErrorTTL
 		case stringMatchAnyRegex(reason, absentMessage):
-			ttl = NoSuchUser
+			ttl = noSuchUserTTL
 		default:
 			ttl = 0
 		}

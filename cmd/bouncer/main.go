@@ -14,11 +14,12 @@ import (
 )
 
 const (
-	ExampleConfig     = "./bounce-collector.conf"
-	success       int = 0
-	runError      int = 1
-	failConfig    int = 13
-	failRedis     int = 12
+	//DefaultConfigFile sets default config file
+	DefaultConfigFile     = "/etc/bouncer.conf"
+	success           int = 0
+	runError          int = 1
+	failConfig        int = 13
+	failRedis         int = 12
 )
 
 type conf struct {
@@ -32,7 +33,7 @@ func main() {
 		config    conf
 	)
 
-	flag.StringVar(&confFile, "c", ExampleConfig, "configuration file")
+	flag.StringVar(&confFile, "c", DefaultConfigFile, "configuration file")
 	flag.StringVar(&checkAddr, "r", "", "email address to check existence")
 	flag.Parse()
 

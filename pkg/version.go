@@ -1,3 +1,4 @@
 package pkg
 
-var VERSION = "UNKNOWN"
+// VERSION variable.
+var VERSION = "UNKNOWN" //nolint:gochecknoglobals
