@@ -3,6 +3,7 @@ package writer
 import (
 	"bounce-collector/cmd/bouncer/analyzer"
 	"encoding/json"
+	"fmt"
 	"github.com/go-redis/redis"
 	"strings"
 	"time"
@@ -21,41 +22,49 @@ type Config struct {
 }
 
 func PutRecord(rec Record, config Config) (err error) {
-	client := rClient(config)
+	client, err := rClient(config)
+
+	if err != nil {
+		return err
+	}
+
+	defer closeConnect(client)
 
 	if rec.TTL > 0 {
 		err = client.Set(rec.Rcpt, marshalToJSON(rec.Info), rec.TTL).Err()
 	}
 
-	_ = client.Close()
-
 	return err
 }
 
-func IsPresent(addr string, config Config) (res bool) {
-	client := rClient(config)
-
-	_, err := client.Get(strings.ToLower(addr)).Result()
-	if err == redis.Nil {
-		res = false
-	} else {
-		res = true
-		//fmt.Println(v)
+func IsPresent(addr string, config Config) bool {
+	client, err := rClient(config)
+	if err != nil {
+		return false
 	}
 
-	_ = client.Close()
+	defer closeConnect(client)
 
-	return res
+	_, err = client.Get(strings.ToLower(addr)).Result()
+
+	//no record - Good. Proceed to another router
+	//got record - Bad. Kill message
+	return err != redis.Nil
 }
 
-func rClient(config Config) *redis.Client {
+func rClient(config Config) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     config.Addr,
 		Password: config.Password,
 		DB:       0,
 	})
 
-	return client
+	_, err := client.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
 func marshalToJSON(r analyzer.RecordInfo) string {
@@ -65,4 +74,10 @@ func marshalToJSON(r analyzer.RecordInfo) string {
 	}
 
 	return string(e)
+}
+
+func closeConnect(client *redis.Client) {
+	if err := client.Close(); err != nil {
+		fmt.Println("Connection already closed")
+	}
 }
