@@ -1,0 +1,39 @@
+---
+stages:
+  - build
+  - build-rpm
+
+variables:
+  OS: linux
+  ARCH: amd64
+  VERSION: 0.0.1
+  BUILD_PATH: dist
+  GOPATH: ${CI_PROJECT_DIR}/${BUILD_PATH}
+  BUILD_RPM_PATH: /home/builder/rpm
+
+build-go:
+  stage: build
+  image: golang:1.14.3-alpine
+  before_script:
+    - go mod vendor
+  script:
+    - build/build.sh
+  after_script:
+    - cp config/bouncer.config.example ${GOPATH}/bin/bouncer.yaml
+  artifacts:
+    paths:
+      - "${BUILD_PATH}/bin/"
+
+build-rpm:
+  stage: build-rpm
+  image: perconalab/rpmbuild:latest
+  before_script:
+    - mkdir -p ${BUILD_RPM_PATH}/SOURCES
+  script:
+    - cp -R ${BUILD_PATH}/bin/* ${BUILD_RPM_PATH}/SOURCES/
+    - rpmbuild -bb build/bouncer.spec
+    - mv ${BUILD_RPM_PATH}/RPMS/x86_64/*.rpm .
+    - curl -I https://ya.ru
+  artifacts:
+    paths:
+      - "*.rpm"
