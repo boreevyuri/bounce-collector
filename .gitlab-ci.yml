@@ -11,6 +11,7 @@ rpm-build:
         git
         rpm-build
         rpmdevtools
+        make
   script:
     - mkdir -p rpmbuild/{SOURCES,RPMS,SRPMS}
     - spectool -g -C rpmbuild/SOURCES build/bouncer.spec
