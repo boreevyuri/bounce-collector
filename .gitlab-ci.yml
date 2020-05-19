@@ -13,7 +13,7 @@ rpm-build:
   script:
     - mkdir -p rpmbuild/{SOURCES, RPMS}
 #    - spectool -g build/bouncer.spec
-    - rpmbuild -bb build/bouncer.spec
+    - rpmbuild -bp build/bouncer.spec
   artifacts:
     paths:
       - "*.rpm"
