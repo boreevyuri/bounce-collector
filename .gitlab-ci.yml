@@ -1,0 +1,18 @@
+---
+stages:
+  - build
+
+rpm-build:
+  stage: build
+  image: centos:7
+  before_script:
+    - yum -y install
+        epel-release
+        git
+        rpm-build
+  script:
+    - mkdir -p rpmbuild/{SOURCES, RPMS}
+    - rpmbuild -bb build/bouncer.spec
+  artifacts:
+    paths:
+      - "*.rpm"
