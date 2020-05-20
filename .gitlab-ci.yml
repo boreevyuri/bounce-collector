@@ -34,6 +34,8 @@ build-go:
     - GOPATH=${GOPATH} build/build.sh
   after_script:
     - ls -la ${GOPATH}
+    - ls -la ${GOPATH}/bin/
+    - ls -la ${GOPATH}/pkg/
   artifacts:
     paths:
       - ${GOPATH}/bin/${OS}_${ARCH}/bouncer
