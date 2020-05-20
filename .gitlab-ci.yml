@@ -27,6 +27,8 @@ variables:
 build-go:
   stage: build
   image: golang:1.14.3-alpine
+  before_script:
+    - go mod vendor
   script:
     - /bin/sh build/build.sh
   artifacts:
