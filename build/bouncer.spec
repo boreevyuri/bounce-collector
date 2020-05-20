@@ -1,6 +1,6 @@
 
 Name: bouncer
-Version: ${VERSION}
+Version: 0.0.1
 Release: 1%{?dist}
 Summary: Analyses exim bounce emails
 
@@ -24,7 +24,7 @@ install -p -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}
 
 %files
 %defattr(0775,root,root,-)
-%{_bindir}/bouncer
-%{_sysconfdir}/bouncer.yaml
+%{_bindir}/%{SOURCE0}
+%{_sysconfdir}/%{SOURCE1}
 
 %changelog
