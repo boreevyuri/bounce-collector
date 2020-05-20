@@ -31,7 +31,9 @@ build-go:
   before_script:
     - go mod vendor
   script:
-    - /bin/sh build/build.sh
+    - GOPATH=${GOPATH} build/build.sh
+  after_script:
+    - ls -la ${GOPATH}
   artifacts:
     paths:
       - ${GOPATH}/bin/${OS}_${ARCH}/bouncer
