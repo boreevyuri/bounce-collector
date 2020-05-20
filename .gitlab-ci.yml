@@ -37,4 +37,4 @@ build-go:
     - ls -la ${GOPATH}/bin/
   artifacts:
     paths:
-      - ${GOPATH}/bin/bouncer
+      - /build/bin/bouncer
