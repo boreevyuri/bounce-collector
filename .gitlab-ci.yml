@@ -35,16 +35,15 @@ build-go:
   script:
     - build/build.sh
   after_script:
-    - mkdir -p ${GOPATH}/etc
-    - cp config/bouncer.config.example ${GOPATH}/etc/bouncer.yaml
+    - cp config/bouncer.config.example ${GOPATH}/bin/bouncer.yaml
   artifacts:
     paths:
-      - ${DISTPATH}/bin/bouncer
-      - ${DISTPATH}/etc/bouncer.yaml
+      - ${DISTPATH}/bin/
 
 build-rpm:
   stage: build-rpm
-  image: centos:7
+  image: perconalab/rpmbuild:latest
+  before_script:
+    - mv %{DISTPATH}/bin SOURCES
   script:
-    - ls -la ${DISTPATH}/bin/
-    - ls -la ${DISTPATH}/etc/
+    - rpmbuild -bb build/bouncer.spec
