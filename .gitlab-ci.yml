@@ -3,29 +3,13 @@ stages:
   - build
   - build-rpm
 
-#rpm-build:
-#  stage: build
-#  image: centos:7
-#  before_script:
-#    - yum -y install
-#        epel-release
-#        git
-#        rpm-build
-#        rpmdevtools
-#        make
-#  script:
-#    - mkdir -p rpmbuild/{SOURCES,RPMS,SRPMS}
-#    - spectool -g -C rpmbuild/SOURCES build/bouncer.spec
-#    - rpmbuild --define "_topdir `pwd`/rpmbuild" -bb build/bouncer.spec
-#  artifacts:
-#    paths:
-#      - "*.rpm"
 variables:
   OS: linux
   ARCH: amd64
   VERSION: 0.0.1
-  DISTPATH: dist
-  GOPATH: ${CI_PROJECT_DIR}/${DISTPATH}
+  BUILD_PATH: dist
+  GOPATH: ${CI_PROJECT_DIR}/${BUILD_PATH}
+  BUILD_RPM_PATH: /home/builder/rpm
 
 build-go:
   stage: build
@@ -38,16 +22,17 @@ build-go:
     - cp config/bouncer.config.example ${GOPATH}/bin/bouncer.yaml
   artifacts:
     paths:
-      - ${DISTPATH}/bin/
+      - "${BUILD_PATH}/bin/"
 
 build-rpm:
   stage: build-rpm
   image: perconalab/rpmbuild:latest
   before_script:
-    - pwd
-    - echo ${DISTPATH}
-    - echo ${WORKDIR}
-    - mkdir -p /home/builder/rpm/SOURCES
+    - mkdir -p ${BUILD_RPM_PATH}/SOURCES
   script:
-    - cp -R ${DISTPATH}/bin/* /home/builder/rpm/SOURCES/
+    - cp -R ${BUILD_PATH}/bin/* ${BUILD_RPM_PATH}/SOURCES/
     - rpmbuild -bb build/bouncer.spec
+    - mv ${BUILD_RPM_PATH}/*.rpm .
+  artifacts:
+    paths:
+      - "*.rpm"
