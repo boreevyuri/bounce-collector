@@ -23,7 +23,7 @@ variables:
   OS: linux
   ARCH: amd64
   VERSION: 0.0.1
-  GOPATH: ${CI_ROJECT_DIR}/dist
+  GOPATH: ${CI_PROJECT_DIR}/dist
 
 build-go:
   stage: build
@@ -31,10 +31,10 @@ build-go:
   before_script:
     - go mod vendor
   script:
-    - OS=${OS} ARCH=${ARCH} build/build.sh
+    - build/build.sh
   after_script:
     - ls -la ${GOPATH}
     - ls -la ${GOPATH}/bin/
   artifacts:
     paths:
-      - ${GOPATH}/bin/${OS}_${ARCH}/bouncer
+      - ${GOPATH}/bin/bouncer
