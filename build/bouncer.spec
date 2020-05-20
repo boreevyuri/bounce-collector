@@ -1,6 +1,6 @@
 
 Name: bouncer
-Version: 0.0.1
+Version: ${VERSION}
 Release: 1%{?dist}
 Summary: Analyses exim bounce emails
 
