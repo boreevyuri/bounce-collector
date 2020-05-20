@@ -47,7 +47,7 @@ build-rpm:
     - pwd
     - echo ${DISTPATH}
     - echo ${WORKDIR}
-    - echo ololo
+    - mkdir -p /home/builder/rpm/SOURCES
   script:
     - cp -R ${DISTPATH}/bin/* /home/builder/rpm/SOURCES/
     - rpmbuild -bb build/bouncer.spec
