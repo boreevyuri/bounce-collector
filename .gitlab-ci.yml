@@ -24,7 +24,8 @@ variables:
   OS: linux
   ARCH: amd64
   VERSION: 0.0.1
-  GOPATH: ${CI_PROJECT_DIR}/dist
+  DISTPATH: dist
+  GOPATH: ${CI_PROJECT_DIR}/${DISTPATH}
 
 build-go:
   stage: build
@@ -38,12 +39,12 @@ build-go:
     - cp config/bouncer.config.example ${GOPATH}/etc/bouncer.yaml
   artifacts:
     paths:
-      - ${GOPATH}/bin/bouncer
-      - ${GOPATH}/etc/bouncer.yaml
+      - ${DISTPATH}/bin/bouncer
+      - ${DISTPATH}/etc/bouncer.yaml
 
 build-rpm:
   stage: build-rpm
   image: centos:7
   script:
-    - ls -la ${GOPATH}/bin/
-    - ls -la ${GOPATH}/etc/
+    - ls -la ${DISTPATH}/bin/
+    - ls -la ${DISTPATH}/etc/
