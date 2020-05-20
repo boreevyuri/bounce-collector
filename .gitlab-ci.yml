@@ -1,6 +1,7 @@
 ---
 stages:
   - build
+  - build-rpm
 
 #rpm-build:
 #  stage: build
@@ -34,14 +35,14 @@ build-go:
     - build/build.sh
   after_script:
     - mkdir -p ${GOPATH}/etc
-    - cp config/bouncer.config.exmaple ${GOPATH}/etc/bouncer.yaml
+    - cp config/bouncer.config.example ${GOPATH}/etc/bouncer.yaml
   artifacts:
     paths:
       - ${GOPATH}/bin/bouncer
       - ${GOPATH}/etc/bouncer.yaml
 
 build-rpm:
-  stage: build
+  stage: build-rpm
   image: centos:7
   script:
     - ls -la ${GOPATH}/bin/
