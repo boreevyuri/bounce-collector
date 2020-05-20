@@ -33,8 +33,16 @@ build-go:
   script:
     - build/build.sh
   after_script:
-    - ls -la ${GOPATH}
-    - ls -la ${GOPATH}/bin/
+    - mkdir -p ${GOPATH}/etc
+    - cp config/bouncer.config.exmaple ${GOPATH}/etc/bouncer.yaml
   artifacts:
     paths:
       - ${GOPATH}/bin/bouncer
+      - ${GOPATH}/etc/bouncer.yaml
+
+build-rpm:
+  stage: build
+  image: centos:7
+  script:
+    - ls -la ${GOPATH}/bin/
+    - ls -la ${GOPATH}/etc/
