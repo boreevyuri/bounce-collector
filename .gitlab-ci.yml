@@ -23,6 +23,7 @@ variables:
   OS: linux
   ARCH: amd64
   VERSION: 0.0.1
+  GOPATH: /dist
 
 build-go:
   stage: build
@@ -31,9 +32,6 @@ build-go:
     - go mod vendor
   script:
     - /bin/sh build/build.sh
-  after_script:
-    - ls -la
-    - echo $GOBIN
   artifacts:
     paths:
-      - ${GOBIN}/bouncer
+      - ${GOPATH}/bin/${OS}_${ARCH}/bouncer
