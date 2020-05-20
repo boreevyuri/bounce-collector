@@ -24,7 +24,7 @@ install -p -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}
 
 %files
 %defattr(0775,root,root,-)
-%{_bindir}/%{SOURCE0}
-%{_sysconfdir}/%{SOURCE1}
+%{_bindir}/bouncer
+%{_sysconfdir}/bouncer.yaml
 
 %changelog
