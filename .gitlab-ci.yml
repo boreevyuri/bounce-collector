@@ -33,6 +33,7 @@ build-go:
     - /bin/sh build/build.sh
   after_script:
     - ls -la
+    - echo $GOBIN
   artifacts:
     paths:
       - ${GOBIN}/bouncer
