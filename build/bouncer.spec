@@ -18,7 +18,6 @@ Also checks emails in redis and outputs "Pass" or "Decline" to use in exim route
 echo "OK"
 
 %install
-rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_bindir},%{_sysconfdir}}
 install -p -m 755 %{SOURCE0} %{buildroot}%{_bindir}
 install -p -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}
