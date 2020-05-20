@@ -31,11 +31,10 @@ build-go:
   before_script:
     - go mod vendor
   script:
-    - GOPATH=${GOPATH} build/build.sh
+    - build/build.sh
   after_script:
     - ls -la ${GOPATH}
     - ls -la ${GOPATH}/bin/
-    - ls -la ${GOPATH}/pkg/
   artifacts:
     paths:
-      - ${GOPATH}/bin/${OS}_${ARCH}/bouncer
+      - ${GOPATH}/bin/bouncer
