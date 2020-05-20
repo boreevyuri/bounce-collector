@@ -32,7 +32,7 @@ build-rpm:
   script:
     - cp -R ${BUILD_PATH}/bin/* ${BUILD_RPM_PATH}/SOURCES/
     - rpmbuild -bb build/bouncer.spec
-    - mv ${BUILD_RPM_PATH}/RPMS/*.rpm .
+    - mv ${BUILD_RPM_PATH}/RPMS/x86_64/*.rpm .
   artifacts:
     paths:
       - "*.rpm"
