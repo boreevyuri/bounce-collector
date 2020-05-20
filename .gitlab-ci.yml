@@ -1,24 +1,34 @@
 ---
-services:
-  - docker:dind
-
 stages:
   - build
 
-rpm-build:
+#rpm-build:
+#  stage: build
+#  image: centos:7
+#  before_script:
+#    - yum -y install
+#        epel-release
+#        git
+#        rpm-build
+#        rpmdevtools
+#        make
+#  script:
+#    - mkdir -p rpmbuild/{SOURCES,RPMS,SRPMS}
+#    - spectool -g -C rpmbuild/SOURCES build/bouncer.spec
+#    - rpmbuild --define "_topdir `pwd`/rpmbuild" -bb build/bouncer.spec
+#  artifacts:
+#    paths:
+#      - "*.rpm"
+variables:
+  OS: linux
+  ARCH: amd64
+  VERSION: 0.0.1
+
+build-go:
   stage: build
-  image: centos:7
-  before_script:
-    - yum -y install
-        epel-release
-        git
-        rpm-build
-        rpmdevtools
-        make
+  image: golang:1.14.3-alpine
   script:
-    - mkdir -p rpmbuild/{SOURCES,RPMS,SRPMS}
-    - spectool -g -C rpmbuild/SOURCES build/bouncer.spec
-    - rpmbuild --define "_topdir `pwd`/rpmbuild" -bb build/bouncer.spec
+    - /bin/sh build/build.sh
   artifacts:
     paths:
-      - "*.rpm"
+      - bin/bouncer
