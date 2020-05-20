@@ -44,6 +44,6 @@ build-rpm:
   stage: build-rpm
   image: perconalab/rpmbuild:latest
   before_script:
-    - mv %{DISTPATH}/bin SOURCES
+    - cp -R %{DISTPATH}/bin/* SOURCES/
   script:
     - rpmbuild -bb build/bouncer.spec
