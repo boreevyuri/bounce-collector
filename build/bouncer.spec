@@ -28,3 +28,5 @@ install -p -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}
 %attr(0644, root, root) %config(noreplace) %{_sysconfdir}/bouncer.yaml
 
 %changelog
+* Fri May 22 2020 Boreev Yuri <boreevyuri@gmail.com>
+- deep alpha
