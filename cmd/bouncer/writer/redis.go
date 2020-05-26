@@ -2,6 +2,7 @@ package writer
 
 import (
 	"bounce-collector/cmd/bouncer/analyzer"
+	"bounce-collector/cmd/bouncer/config"
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis"
@@ -16,15 +17,9 @@ type Record struct {
 	Info analyzer.RecordInfo
 }
 
-// Config - struct for redis config.
-type Config struct {
-	Addr     string `yaml:"address"`
-	Password string `yaml:"password"`
-}
-
 // PutRecord puts Record to Redis db.
-func PutRecord(rec Record, config Config) (err error) {
-	client, err := rClient(config)
+func PutRecord(rec Record, conf config.RedisConfig) (err error) {
+	client, err := rClient(conf)
 
 	if err != nil {
 		return err
@@ -40,8 +35,8 @@ func PutRecord(rec Record, config Config) (err error) {
 }
 
 // IsPresent checks address existence in redis db.
-func IsPresent(addr string, config Config) bool {
-	client, err := rClient(config)
+func IsPresent(addr string, conf config.RedisConfig) bool {
+	client, err := rClient(conf)
 	if err != nil {
 		return false
 	}
@@ -55,10 +50,10 @@ func IsPresent(addr string, config Config) bool {
 	return err != redis.Nil
 }
 
-func rClient(config Config) (*redis.Client, error) {
+func rClient(conf config.RedisConfig) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:     config.Addr,
-		Password: config.Password,
+		Addr:     conf.Addr,
+		Password: conf.Password,
 		DB:       0,
 	})
 

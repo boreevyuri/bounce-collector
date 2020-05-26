@@ -46,7 +46,7 @@ func main() {
 	os.Exit(success)
 }
 
-func checkMail(email string, redis writer.Config) string {
+func checkMail(email string, redis config.RedisConfig) string {
 	if writer.IsPresent(email, redis) {
 		return "Pass"
 	}
@@ -54,7 +54,7 @@ func checkMail(email string, redis writer.Config) string {
 	return "Decline"
 }
 
-func processMail(fileName string, redis writer.Config) {
+func processMail(fileName string, redis config.RedisConfig) {
 	var (
 		messageInfo analyzer.RecordInfo
 		record      writer.Record
