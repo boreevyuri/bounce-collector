@@ -15,7 +15,7 @@ import (
 
 const (
 	//DefaultConfigFile sets default config file
-	DefaultConfigFile     = "/etc/bouncer.conf"
+	DefaultConfigFile     = "/etc/bouncer.yaml"
 	success           int = 0
 	runError          int = 1
 	failConfig        int = 13
