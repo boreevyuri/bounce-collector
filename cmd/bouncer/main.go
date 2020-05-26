@@ -2,11 +2,11 @@ package main
 
 import (
 	"bounce-collector/cmd/bouncer/analyzer"
+	"bounce-collector/cmd/bouncer/config"
 	"bounce-collector/cmd/bouncer/writer"
 	"bufio"
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/mail"
 	"os"
@@ -14,37 +14,32 @@ import (
 )
 
 const (
-	//DefaultConfigFile sets default config file
-	DefaultConfigFile     = "/etc/bouncer.yaml"
+	defaultConfigFile     = "/etc/bouncer.yaml"
 	success           int = 0
 	runError          int = 1
-	failConfig        int = 13
 	failRedis         int = 12
 )
-
-type conf struct {
-	Redis writer.Config `yaml:"redis"`
-}
 
 func main() {
 	var (
 		confFile  string
 		checkAddr string
-		config    conf
+		conf      config.Conf
+		//config    conf
 	)
 
-	flag.StringVar(&confFile, "c", DefaultConfigFile, "configuration file")
+	flag.StringVar(&confFile, "c", defaultConfigFile, "configuration file")
 	flag.StringVar(&checkAddr, "r", "", "email address to check existence")
 	flag.Parse()
 
 	fileName := flag.Arg(0)
 
-	config.getConf(confFile)
+	conf.GetConf(confFile)
 
 	if len(checkAddr) == 0 {
-		processMail(fileName, config.Redis)
+		processMail(fileName, conf.Redis)
 	} else {
-		msg := checkMail(checkAddr, config.Redis)
+		msg := checkMail(checkAddr, conf.Redis)
 		fmt.Println(msg)
 	}
 
@@ -146,29 +141,4 @@ func parseFrom(s string) string {
 	}
 
 	return e.Address
-}
-
-func isValidConfigFilename(filename string) bool {
-	return len(filename) > 0
-}
-
-func (c *conf) getConf(filename string) *conf {
-	if isValidConfigFilename(filename) {
-		yamlFile, err := ioutil.ReadFile(filename)
-		if err != nil {
-			fmt.Println("no config file specified")
-			os.Exit(failConfig)
-		}
-
-		err = yaml.Unmarshal(yamlFile, c)
-
-		if err != nil {
-			fmt.Println(yamlFile)
-			os.Exit(failConfig)
-		}
-
-		return c
-	}
-
-	return nil
 }
