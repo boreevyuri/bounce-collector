@@ -25,4 +25,4 @@ go.sum
 .idea
 test-mail.eml
 test
-*.config
+config/*.yaml
