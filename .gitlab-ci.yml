@@ -19,7 +19,7 @@ build-go:
   script:
     - build/build.sh
   after_script:
-    - cp config/bouncer.config.example ${GOPATH}/bin/bouncer.yaml
+    - cp config/bouncer.yaml.example ${GOPATH}/bin/bouncer.yaml
   artifacts:
     paths:
       - "${BUILD_PATH}/bin/"
