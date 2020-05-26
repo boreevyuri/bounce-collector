@@ -1,7 +1,6 @@
 package config
 
 import (
-	"bounce-collector/cmd/bouncer/writer"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -13,7 +12,12 @@ const (
 )
 
 type Conf struct {
-	Redis writer.Config `yaml:"redis"`
+	Redis RedisConfig `yaml:"redis"`
+}
+
+type RedisConfig struct {
+	Addr     string `yaml:"address"`
+	Password string `yaml:"password"`
 }
 
 func (c *Conf) GetConf(filename string) *Conf {
