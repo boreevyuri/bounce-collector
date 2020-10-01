@@ -36,6 +36,9 @@ func main() {
 
 	conf.GetConf(confFile)
 
+	//redisChan = make(chan writer.Record)
+	//redisResult = make(chan bool)
+
 	if len(checkAddr) == 0 {
 		processMail(fileName, conf.Redis)
 	} else {
