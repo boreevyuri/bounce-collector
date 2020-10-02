@@ -14,10 +14,12 @@ import (
 )
 
 const (
-	defaultConfigFile     = "/etc/bouncer.yaml"
-	success           int = 0
-	runError          int = 1
-	failRedis         int = 12
+	defaultConfigFile        = "/etc/bouncer.yaml"
+	success           int    = 0
+	runError          int    = 1
+	failRedis         int    = 12
+	pass              string = "Pass"
+	decline           string = "Decline"
 )
 
 func main() {
@@ -36,28 +38,28 @@ func main() {
 
 	conf.GetConf(confFile)
 
-	//redisChan = make(chan writer.Record)
-	//redisResult = make(chan bool)
+	redis := writer.New(conf.Redis)
+
+	//time.Sleep(time.Duration(2) * time.Second)
 
 	if len(checkAddr) == 0 {
-		processMail(fileName, conf.Redis)
+		processNewMail(redis, fileName)
 	} else {
-		msg := checkMail(checkAddr, conf.Redis)
-		fmt.Println(msg)
+		fmt.Printf("%s", checkMail(redis, checkAddr))
 	}
 
 	os.Exit(success)
 }
 
-func checkMail(email string, redis config.RedisConfig) string {
-	if writer.IsPresent(email, redis) {
-		return "Pass"
+func checkMail(redis writer.ProcessRedis, emailAddr string) string {
+	if redis.Find(emailAddr) {
+		return pass
 	}
 
-	return "Decline"
+	return decline
 }
 
-func processMail(fileName string, redis config.RedisConfig) {
+func processNewMail(redis writer.ProcessRedis, fileName string) {
 	var (
 		messageInfo analyzer.RecordInfo
 		record      writer.Record
@@ -83,9 +85,7 @@ func processMail(fileName string, redis config.RedisConfig) {
 		Info: messageInfo,
 	}
 
-	err := writer.PutRecord(record, redis)
-	if err != nil {
-		fmt.Printf("Collector error: %+v", err)
+	if !redis.Insert(record) {
 		os.Exit(failRedis)
 	}
 }
@@ -102,9 +102,9 @@ func readInput(fileName string) (m *mail.Message) {
 		file, err := os.Open(fileName)
 		if err != nil {
 			fmt.Println("Usage:")
-			fmt.Println("bounce-collector -f config.yaml file.eml")
+			fmt.Println("bounce-collector -c config.yaml file.eml")
 			fmt.Println("or")
-			fmt.Println("cat file.eml | bounce-collector -f config.yaml")
+			fmt.Println("cat file.eml | bounce-collector -c config.yaml")
 			os.Exit(runError)
 		}
 

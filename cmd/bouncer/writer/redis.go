@@ -4,10 +4,19 @@ import (
 	"bounce-collector/cmd/bouncer/analyzer"
 	"bounce-collector/cmd/bouncer/config"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/go-redis/redis"
+	"log"
 	"strings"
 	"time"
+)
+
+type commandAction int
+
+const (
+	find commandAction = iota
+	insert
 )
 
 // Record - struct for write to redis.
@@ -17,52 +26,83 @@ type Record struct {
 	Info analyzer.RecordInfo
 }
 
-// PutRecord puts Record to Redis db.
-func PutRecord(rec Record, conf config.RedisConfig) (err error) {
-	client, err := rClient(conf)
-
-	if err != nil {
-		return err
-	}
-
-	defer closeConnect(client)
-
-	if rec.TTL > 0 {
-		err = client.Set(rec.Rcpt, marshalToJSON(rec.Info), rec.TTL).Err()
-	}
-
-	return err
+type commandData struct {
+	action commandAction
+	value  interface{}
+	result chan<- bool
 }
 
-// IsPresent checks address existence in redis db.
-func IsPresent(addr string, conf config.RedisConfig) bool {
-	client, err := rClient(conf)
-	if err != nil {
-		return false
-	}
+type processRedis chan commandData
 
-	defer closeConnect(client)
-
-	_, err = client.Get(strings.ToLower(addr)).Result()
-
-	//no record - Good. Proceed to another router
-	//got record - Bad. Kill message
-	return err != redis.Nil
+type ProcessRedis interface {
+	Insert(value Record) bool
+	Find(value string) bool
 }
 
-func rClient(conf config.RedisConfig) (*redis.Client, error) {
-	client := redis.NewClient(&redis.Options{
+func New(conf config.RedisConfig) ProcessRedis {
+	pr := make(processRedis)
+	go pr.run(conf)
+	return pr
+}
+
+func (pr processRedis) run(conf config.RedisConfig) {
+	rc := redis.NewClient(&redis.Options{
 		Addr:     conf.Addr,
 		Password: conf.Password,
 		DB:       0,
 	})
+	defer closeConnect(rc)
 
-	_, err := client.Ping().Result()
+	_, err := rc.Ping().Result()
 	if err != nil {
-		return nil, err
+		log.Fatal("unable to connect redis:", err)
 	}
 
-	return client, nil
+	//store = make(map[string]interface{})
+	for command := range pr {
+		switch command.action {
+		case find:
+			found := findRecord(rc, command.value)
+			command.result <- found
+		case insert:
+			err := insertRecord(rc, command.value)
+			if err != nil {
+				log.Fatal("Unable to insert record:", err)
+				//os.Exit(13)
+			}
+			command.result <- true
+		}
+	}
+}
+
+func (pr processRedis) Insert(value Record) bool {
+	reply := make(chan bool)
+	pr <- commandData{action: insert, value: value, result: reply}
+	return <-reply
+}
+
+func (pr processRedis) Find(value string) bool {
+	reply := make(chan bool)
+	pr <- commandData{action: find, value: value, result: reply}
+	return <-reply
+}
+
+func insertRecord(client *redis.Client, rec interface{}) (err error) {
+	if rec, ok := rec.(Record); ok {
+		if rec.TTL > 0 {
+			err = client.Set(rec.Rcpt, marshalToJSON(rec.Info), rec.TTL).Err()
+		}
+		return err
+	}
+	return errors.New("unknown record format")
+}
+
+func findRecord(client *redis.Client, rec interface{}) bool {
+	if rec, ok := rec.(string); ok {
+		_, err := client.Get(strings.ToLower(rec)).Result()
+		return err != redis.Nil
+	}
+	return false
 }
 
 func marshalToJSON(r analyzer.RecordInfo) string {
