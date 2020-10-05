@@ -3,6 +3,7 @@ package main
 import (
 	"bounce-collector/cmd/bouncer/analyzer"
 	"bounce-collector/cmd/bouncer/config"
+	"bounce-collector/cmd/bouncer/reader"
 	"bounce-collector/cmd/bouncer/writer"
 	"bufio"
 	"flag"
@@ -34,19 +35,37 @@ func main() {
 	flag.StringVar(&checkAddr, "r", "", "email address to check existence")
 	flag.Parse()
 
-	fileName := flag.Arg(0)
-
+	//read config file
 	conf.GetConf(confFile)
 
+	//open connection to redis
 	redis := writer.New(conf.Redis)
 
-	//time.Sleep(time.Duration(2) * time.Second)
-
-	if len(checkAddr) == 0 {
-		processNewMail(redis, fileName)
-	} else {
+	//we have rcpt addr -> check and exit
+	if len(checkAddr) != 0 {
 		fmt.Printf("%s", checkMail(redis, checkAddr))
+		os.Exit(success)
 	}
+
+	//we have no rcpt to check. Let mortal kombat begin...
+	//fileName := flag.Arg(0)
+	fileNames := flag.Args()
+
+	//messageChan := make(chan *mail.Message)
+	messageChan := make(chan *bufio.Reader)
+
+	if len(fileNames) == 0 {
+		if err := reader.ReadStdin(messageChan); err != nil {
+			terminate()
+		}
+
+	}
+
+	for _, fileName := range fileNames {
+		processNewMail(redis, fileName)
+	}
+
+	//processNewMail(redis, fileName)
 
 	os.Exit(success)
 }
@@ -102,9 +121,11 @@ func readInput(fileName string) (m *mail.Message) {
 		file, err := os.Open(fileName)
 		if err != nil {
 			fmt.Println("Usage:")
-			fmt.Println("bounce-collector -c config.yaml file.eml")
+			fmt.Println("bouncer -c config.yaml file.eml")
 			fmt.Println("or")
-			fmt.Println("cat file.eml | bounce-collector -c config.yaml")
+			fmt.Println("cat file.eml | bouncer -c config.yaml")
+			fmt.Println("or")
+			fmt.Println("use MTA pipe transport: 'command = /bin/bouncer -c /etc/bouncer.yaml'")
 			os.Exit(runError)
 		}
 
@@ -144,4 +165,14 @@ func parseFrom(s string) string {
 	}
 
 	return e.Address
+}
+
+func terminate() {
+	fmt.Println("Usage:")
+	fmt.Println("bouncer -c config.yaml file.eml")
+	fmt.Println("or")
+	fmt.Println("cat file.eml | bouncer -c config.yaml")
+	fmt.Println("or")
+	fmt.Println("use MTA pipe transport: 'command = /bin/bouncer -c /etc/bouncer.yaml'")
+	os.Exit(0)
 }
