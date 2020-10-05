@@ -53,21 +53,36 @@ func main() {
 
 	//messageChan := make(chan *mail.Message)
 	messageChan := make(chan *bufio.Reader)
+	mailChan := make(chan *mail.Message)
 
 	if len(fileNames) == 0 {
 		if err := reader.ReadStdin(messageChan); err != nil {
 			terminate()
 		}
-
+	} else {
+		if err := reader.ReadFiles(messageChan, fileNames); err != nil {
+			terminate()
+		}
 	}
 
-	for _, fileName := range fileNames {
-		processNewMail(redis, fileName)
-	}
+	//
+	//for _, fileName := range fileNames {
+	//	processNewMail(redis, fileName)
+	//}
 
 	//processNewMail(redis, fileName)
 
 	os.Exit(success)
+}
+
+func parseMail(m chan *mail.Message, r chan *bufio.Reader) {
+	for message := range r {
+		n, err := mail.ReadMessage(message)
+		if err != nil {
+			os.Exit(runError)
+		}
+		m <- n
+	}
 }
 
 func checkMail(redis writer.ProcessRedis, emailAddr string) string {

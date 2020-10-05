@@ -6,17 +6,23 @@ import (
 	"os"
 )
 
+func ReadFiles(job chan<- *bufio.Reader, fileNames []string) (err error) {
+	for _, fileName := range fileNames {
+		err = ReadFile(job, fileName)
+		if err != nil {
+			return
+		}
+	}
+}
+
 func ReadFile(job chan<- *bufio.Reader, fileName string) (err error) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return err
-		//return errors.New("no such file")
-		//os.Exit(0)
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
 			return
-			//os.Exit(1)
 		}
 	}()
 
