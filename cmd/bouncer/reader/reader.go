@@ -1,37 +1,38 @@
 package reader
 
 import (
-	"bufio"
 	"errors"
+	"net/mail"
 	"os"
 )
 
-func ReadFiles(job chan<- *bufio.Reader, fileNames []string) (err error) {
-	for _, fileName := range fileNames {
-		err = ReadFile(job, fileName)
-		if err != nil {
-			return
-		}
-	}
-}
+var (
+	errInput = errors.New("no input specified")
+)
 
-func ReadFile(job chan<- *bufio.Reader, fileName string) (err error) {
+func ReadFile(job chan<- *mail.Message, fileName string) (err error) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return err
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			return
 		}
 	}()
 
-	job <- bufio.NewReader(file)
-	close(job)
+	m, err := mail.ReadMessage(file)
+	if err != nil {
+		return err
+	}
+
+	job <- m
+
 	return nil
 }
 
-func ReadStdin(job chan<- *bufio.Reader) (err error) {
+func ReadStdin(job chan<- *mail.Message) (err error) {
 	inputData, err := os.Stdin.Stat()
 	if err != nil {
 		panic(err)
@@ -39,20 +40,15 @@ func ReadStdin(job chan<- *bufio.Reader) (err error) {
 
 	if (inputData.Mode() & os.ModeNamedPipe) != 0 {
 		//terminate()
-		return errors.New("no input specified")
+		return errInput
 	}
 
-	job <- bufio.NewReader(os.Stdin)
-	close(job)
+	m, err := mail.ReadMessage(os.Stdin)
+	if err != nil {
+		return err
+	}
+
+	job <- m
+
 	return nil
 }
-
-//func terminate() {
-//	fmt.Println("Usage:")
-//	fmt.Println("bouncer -c config.yaml file.eml")
-//	fmt.Println("or")
-//	fmt.Println("cat file.eml | bouncer -c config.yaml")
-//	fmt.Println("or")
-//	fmt.Println("use MTA pipe transport: 'command = /bin/bouncer -c /etc/bouncer.yaml'")
-//	//os.Exit(0)
-//}
