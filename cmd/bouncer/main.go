@@ -70,32 +70,12 @@ func main() {
 		close(mailChan)
 	}
 	<-done
-	//for mailMessage := range mailChan {
-	//	fmt.Printf("%s", mailMessage.Header.Get("X-Failed-Recipients"))
-	//}
 
 	os.Exit(success)
 }
 
-//func parseMail(m chan *mail.Message, data chan *bufio.Reader) {
-//	for message := range data {
-//		n, err := mail.ReadMessage(message)
-//		if err != nil {
-//			fmt.Printf("parseMail error: %+v", err)
-//			os.Exit(runError)
-//		}
-//		fmt.Printf("%s", n.Header.Get("X-Failed-Recipients"))
-//		m <- n
-//	}
-//}
-
 func processMail(done chan<- bool, redis writer.ProcessRedis, in <-chan *mail.Message) {
-	fmt.Println("processMail started")
-
 	for m := range in {
-		//m := <-in
-		fmt.Printf("Chan length: %d\n", len(in))
-		fmt.Println("start process")
 		rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
 
 		body, _ := ioutil.ReadAll(m.Body)
@@ -120,10 +100,7 @@ func processMail(done chan<- bool, redis writer.ProcessRedis, in <-chan *mail.Me
 		if !success {
 			os.Exit(failRedis)
 		}
-		fmt.Println("record inserted")
 	}
-
-	fmt.Println("processMail finished")
 
 	done <- true
 

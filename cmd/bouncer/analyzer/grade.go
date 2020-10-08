@@ -150,3 +150,13 @@ func findSubstring(s string, arr []string) bool {
 func failedSpamDelivery(r RecordInfo) bool {
 	return r.SMTPCode == 451 && r.SMTPStatus == "4.7.1"
 }
+
+// SetTTL - sets TTL on record.
+func SetTTL(r RecordInfo) time.Duration {
+	ttl, err := DetermineReason(r)
+	if err != nil {
+		return 0
+	}
+
+	return ttl
+}
