@@ -50,7 +50,9 @@ func main() {
 	fileNames := flag.Args()
 
 	mailChan := make(chan *mail.Message)
-	go processMail(redis, mailChan)
+	done := make(chan bool)
+
+	go processMail(done, redis, mailChan)
 
 	if len(fileNames) == 0 {
 		if err := reader.ReadStdin(mailChan); err != nil {
@@ -58,14 +60,16 @@ func main() {
 		}
 	} else {
 		for _, fileName := range fileNames {
-			err := reader.ReadFile(mailChan, fileName)
-			if err != nil {
-				fmt.Printf("read file error")
-			}
+			reader.ReadFile(mailChan, fileName)
+			//err := reader.ReadFile(mailChan, fileName)
+			//fmt.Println("readfile started")
+			//if err != nil {
+			//	fmt.Printf("read file error")
+			//}
 		}
 		close(mailChan)
 	}
-
+	<-done
 	//for mailMessage := range mailChan {
 	//	fmt.Printf("%s", mailMessage.Header.Get("X-Failed-Recipients"))
 	//}
@@ -85,8 +89,13 @@ func main() {
 //	}
 //}
 
-func processMail(redis writer.ProcessRedis, inputData <-chan *mail.Message) {
-	for m := range inputData {
+func processMail(done chan<- bool, redis writer.ProcessRedis, in <-chan *mail.Message) {
+	fmt.Println("processMail started")
+
+	for m := range in {
+		//m := <-in
+		fmt.Printf("Chan length: %d\n", len(in))
+		fmt.Println("start process")
 		rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
 
 		body, _ := ioutil.ReadAll(m.Body)
@@ -107,10 +116,22 @@ func processMail(redis writer.ProcessRedis, inputData <-chan *mail.Message) {
 			Info: messageInfo,
 		}
 
-		if !redis.Insert(record) {
+		success := redis.Insert(record)
+		if !success {
 			os.Exit(failRedis)
 		}
+		fmt.Println("record inserted")
 	}
+
+	fmt.Println("processMail finished")
+
+	done <- true
+
+	//if !redis.Insert(record) {
+	//	fmt.Println("record inserted")
+	//	os.Exit(failRedis)
+	//}
+
 }
 
 func checkMail(redis writer.ProcessRedis, emailAddr string) string {

@@ -2,18 +2,21 @@ package reader
 
 import (
 	"errors"
+	"fmt"
 	"net/mail"
 	"os"
+	"strings"
 )
 
 var (
 	errInput = errors.New("no input specified")
 )
 
-func ReadFile(job chan<- *mail.Message, fileName string) (err error) {
+//func ReadFile(job chan<- *mail.Message, fileName string) (err error) {
+func ReadFile(job chan<- *mail.Message, fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
-		return err
+		return
 	}
 
 	defer func() {
@@ -24,12 +27,16 @@ func ReadFile(job chan<- *mail.Message, fileName string) (err error) {
 
 	m, err := mail.ReadMessage(file)
 	if err != nil {
-		return err
+		//return err
+		return
 	}
 
+	//fmt.Fprintf("reader header: %s", strings.ToLower(m.Header.Get("X-Failed-Recipients")))
+	h := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
+	fmt.Printf("reader header: %s\n", h)
 	job <- m
 
-	return nil
+	//return nil
 }
 
 func ReadStdin(job chan<- *mail.Message) (err error) {
