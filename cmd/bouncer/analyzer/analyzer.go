@@ -2,9 +2,18 @@ package analyzer
 
 import (
 	"errors"
+	"mime"
+	"mime/multipart"
+	"net/mail"
 	"regexp"
 	"strconv"
 	"strings"
+)
+
+const (
+	contentTypeHeader   = "Content-Type"
+	expectedContentType = "multipart/report"
+	expectedReportType  = "delivery-status"
 )
 
 const (
@@ -46,6 +55,28 @@ func Analyze(body []byte) Result {
 		SMTPStatus: "0.0.0",
 		Reason:     "Unable to find reason",
 	}
+}
+
+func NewAnalyze(m *mail.Message) (d string, err error) {
+
+	boundary, err := findBoundary(&m.Header)
+	bodyReader := multipart.NewReader(m.Body, boundary)
+
+	return
+}
+
+func findBoundary(h *mail.Header) (boundary string, err error) {
+	mediaType, params, err := mime.ParseMediaType(h.Get(contentTypeHeader))
+	if err != nil {
+		return boundary, err
+	}
+	if mediaType == expectedContentType && params["report-type"] == expectedReportType {
+		if boundary, ok := params["boundary"]; ok {
+			return boundary, nil
+		}
+	}
+
+	return boundary, errors.New("this is not exim report")
 }
 
 func findBounceMessage(body []byte) (res Result, err error) {

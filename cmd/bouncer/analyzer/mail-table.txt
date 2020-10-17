@@ -1,0 +1,432 @@
+google.com
+Hosts:
+    Remote-MTA: dns; ALT1.ASPMX.L.GOOGLE.COM
+    Remote-MTA: dns; alt1.gmail-smtp-in.l.google.com
+    Remote-MTA: dns; alt2.aspmx.l.google.com
+    Remote-MTA: dns; alt2.gmail-smtp-in.l.google.com
+    Remote-MTA: dns; alt3.gmail-smtp-in.l.google.com
+    Remote-MTA: dns; alt4.gmail-smtp-in.l.google.com
+    Remote-MTA: dns; aspmx.l.google.com
+    Remote-MTA: dns; ASPMX.L.GOOGLE.com
+    Remote-MTA: dns; ASPMX.L.GOOGLE.COM
+    Remote-MTA: dns; gmail-smtp-in.l.google.com
+Errors:
+- Account disabled
+    Diagnostic-Code: smtp; 550-5.2.1 The email account that you tried to reach is disabled. Learn more at
+- Account does not exist
+    Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does not exist. Please try
+- Account enabled spam policy
+    Diagnostic-Code: smtp; 550-5.7.1 The user or domain that you are sending to (or from) has a policy that
+- Account permanent ovequota
+    Diagnostic-Code: smtp; 552-5.2.2 The email account that you tried to reach is over quota. Please direct
+- Not valid account name
+    Diagnostic-Code: smtp; 553-5.1.3 The recipient address <....@gmail.com> is not a valid
+    (double dot and dot in end of line are not valid)
+TempErrors:
+- Account over receiving rate
+    Diagnostic-Code: smtp; 450-4.2.1 The user you are trying to contact is receiving mail at a rate that
+- Temporary overquota
+    Diagnostic-Code: smtp; 452-4.2.2 The email account that you tried to reach is over quota. Please direct
+
+outlook.com, hotmail.com, etc.
+Hosts:
+    Remote-MTA: dns; 1367957732.pamx1.hotmail.com
+    Remote-MTA: dns; 2019102901.pamx1.hotmail.com
+    Remote-MTA: dns; 2117957888.pamx1.hotmail.com
+    Remote-MTA: dns; aberdeen-ac-uk.mail.protection.outlook.com
+    Remote-MTA: dns; abes-ac-in.mail.protection.outlook.com
+    Remote-MTA: dns; ac9e6e174a61c54ba6958e08ca868f.pamx1.hotmail.com
+    Remote-MTA: dns; aktasdis-com.mail.protection.outlook.com
+    Remote-MTA: dns; apc.olc.protection.outlook.com
+    Remote-MTA: dns; bijen-org.mail.protection.outlook.com
+    Remote-MTA: dns; bot-com.mail.protection.outlook.com
+    Remote-MTA: dns; christian-com.mail.protection.outlook.com
+    Remote-MTA: dns; danfoss-com.mail.protection.outlook.com
+    Remote-MTA: dns; donnu-edu-ua.mail.protection.outlook.com
+    Remote-MTA: dns; dwikuyz-com.mail.protection.outlook.com
+    Remote-MTA: dns; emel-com.mail.eo.outlook.com
+    Remote-MTA: dns; emiel-com.mail.protection.outlook.com
+    Remote-MTA: dns; eon-se.mail.protection.outlook.com
+    Remote-MTA: dns; erik-com.mail.protection.outlook.com
+    Remote-MTA: dns; eur.olc.protection.outlook.com
+    Remote-MTA: dns; gamaliel-com.mail.protection.outlook.com
+    Remote-MTA: dns; gamill-com.mail.protection.outlook.com
+    Remote-MTA: dns; gemel-com.mail.protection.outlook.com
+    Remote-MTA: dns; geniussports-com.mail.protection.outlook.com
+    Remote-MTA: dns; group-com.mail.protection.outlook.com
+    Remote-MTA: dns; hotmail-com.olc.protection.outlook.com
+    Remote-MTA: dns; ibsb-hu0i.mail.eo.outlook.com
+    Remote-MTA: dns; iwtsedov-ru.mail.protection.outlook.com
+    Remote-MTA: dns; live-com.olc.protection.outlook.com
+    Remote-MTA: dns; maeil-com.mail.protection.outlook.com
+    Remote-MTA: dns; mael-com.mail.protection.outlook.com
+    Remote-MTA: dns; msn-com.olc.protection.outlook.com
+    Remote-MTA: dns; mytudublin-ie.mail.protection.outlook.com
+    Remote-MTA: dns; nam.olc.protection.outlook.com
+    Remote-MTA: dns; obolon365-net.mail.protection.outlook.com
+    Remote-MTA: dns; outlook-com.olc.protection.outlook.com
+    Remote-MTA: dns; paulin-com.mail.protection.outlook.com
+    Remote-MTA: dns; qwer-com.mail.protection.outlook.com
+    Remote-MTA: dns; sbi-co-in.mail.protection.outlook.com
+    Remote-MTA: dns; securitas-com-tr.mail.protection.outlook.com
+    Remote-MTA: dns; st-amu-edu-pl.mail.protection.outlook.com
+    Remote-MTA: dns; std-antalya-edu-tr.mail.protection.outlook.com
+    Remote-MTA: dns; studenti-unipr-it.mail.protection.outlook.com
+    Remote-MTA: dns; tcd-ie.mail.protection.outlook.com
+    Remote-MTA: dns; udlap-mx.mail.protection.outlook.com
+    Remote-MTA: dns; wowworks-ru.mail.protection.outlook.com
+Errors:
+- spam blocked
+    Diagnostic-Code: smtp; 550 5.7.1 Unfortunately, messages from [10.10.10.10] weren't sent. Please contact your Internet service provider since part of their network is on our block list (S3140). You can also refer your provider to http://mail.live.com/mail/troubleshooting.aspx#errors. [VI1EUR06FT068.eop-eur06.prod.protection.outlook.com]
+- banned smtp ip
+    Diagnostic-Code: smtp; 550 5.7.606 Access denied, banned sending IP [10.10.10.10]. To request removal from this list please visit https://sender.office.com/ and follow the directions. For more information please go to  http://go.microsoft.com/fwlink/?LinkID=526655 AS(1430)
+- Account does not exist
+    Diagnostic-Code: smtp; 550 5.5.0 Requested action not taken: mailbox unavailable (S2017062302).
+- Account disabled
+    Diagnostic-Code: smtp; 550 5.4.1 Recipient address rejected: Access denied. AS(201806281) [VE1EUR03FT046.eop-EUR03.prod.protection.outlook.com]
+
+
+mail.ru
+Hosts:
+    Remote-MTA: dns; mxs.mail.ru
+Errors:
+- Account disabled
+    Diagnostic-Code: smtp; 550 Message was not accepted -- invalid mailbox.  Local mailbox ....@mail.ru is unavailable: account is disabled
+- Ill-formatted email address
+    Diagnostic-Code: smtp; 550 5.1.3 Bad destination mailbox address syntax: invalid mailbox. Local mailbox <....@mail.ru> is unavailable: Ill-formatted e-mail address
+    ("/", "$", "|" are not allowed in user names)
+- invalid user address
+    Diagnostic-Code: smtp; 550 Message was not accepted -- invalid mailbox.  Local mailbox +1234567890@mail.ru is unavailable: Invalid mPOP user address
+- spam detected
+    Diagnostic-Code: smtp; 550 spam message rejected. Please visit http://help.mail.ru/notspam-support/id?c=.......~ or  report details to abuse@corp.mail.ru. Error code: 1234567890ABCDEFG. ID: 00000000000000000000.
+- Account was terminated
+    Diagnostic-Code: smtp; 550 Message was not accepted -- invalid mailbox.  Local mailbox ....@mail.ru is unavailable: user is terminated
+- Account does not exist
+    Diagnostic-Code: smtp; 550 Message was not accepted -- invalid mailbox.  Local mailbox ....@mail.ru is unavailable: user not found
+
+icloud.com
+Hosts:
+    Remote-MTA: dns; mx01.mail.icloud.com
+    Remote-MTA: dns; mx02.mail.icloud.com
+Errors:
+- Temporary overquota
+    Diagnostic-Code: smtp; 450 4.2.2 <....@icloud.com>: user is overquota: retry timeout exceeded
+- Temporary service unavailable
+    Diagnostic-Code: smtp; 451 4.7.1 Service unavailable - try again later: retry timeout exceeded
+- Bad mailbox name
+    Diagnostic-Code: smtp; 550 5.1.1 bad mailbox name
+- Mail blocked by proofpoint.com
+    Diagnostic-Code: smtp; 550 5.7.0 Blocked - see https://support.proofpoint.com/dnsbl-lookup.cgi?ip=10.10.10.10
+    Diagnostic-Code: smtp; 550 5.7.0 Blocked - see https://ipcheck.proofpoint.com/?ip=10.10.10.10
+- Account disabled
+    Diagnostic-Code: smtp; 550 5.2.1 user disabled; cannot receive new mail:....@icloud.com
+- Account does not exist
+    Diagnostic-Code: smtp; 550 5.1.1 <....@icloud.com>: user does not exist
+- Message rejected by policy
+    Diagnostic-Code: smtp; 554 5.7.1 [CS01] Message rejected due to local policy. Please visit https://support.apple.com/en-us/HT204137
+    Diagnostic-Code: smtp; 554 5.7.1 [HM07] Message rejected due to local policy. Please visit https://support.apple.com/en-us/HT204137
+    Diagnostic-Code: smtp; 554 5.7.1 [CS02] Message rejected due to local policy. Please visit https://support.apple.com/en-us/HT204137
+
+yandex.ru
+Hosts:
+    Remote-MTA: dns; mx1.yandex.ru
+    Remote-MTA: dns; mx2.yandex.ru
+    Remote-MTA: dns; mx.yandex.net
+    Remote-MTA: dns; mx.yandex.ru
+Errors:
+- Account does not exist
+    Diagnostic-Code: smtp; 550 5.7.1 No such user!
+- Message rejected by rcpt policy
+    Diagnostic-Code: smtp; 550 5.7.1 Policy rejection on the target address
+- Unknown error
+    Diagnostic-Code: smtp; 551 5.3.0 Unknown error; ....-.... 1600107908-....-....
+- Permanent overquota
+    Diagnostic-Code: smtp; 552 5.2.2 Mailbox size limit exceeded 1602272229-....-....
+- Message rejected because of spam
+    Diagnostic-Code: smtp; 554 5.7.1 [1] Message rejected under suspicion of SPAM; https://ya.cc/1IrBc 1601918445-....-....
+
+mail.com
+Hosts:
+    Remote-MTA: dns; mx01.mail.com
+    Remote-MTA: dns; mx00.mail.com
+Errors:
+- spam detected
+    Diagnostic-Code: smtp; 450-Requested mail action not taken: mailbox unavailable
+- bad syntax
+    Diagnostic-Code: smtp; 501 Syntax error in parameters or arguments
+    (like google.com)
+- mailbox unavailable
+    Diagnostic-Code: smtp; 550 Requested action not taken: mailbox unavailable
+
+yahoo.com
+Hosts:
+    Remote-MTA: dns; mta5.am0.yahoodns.net
+    Remote-MTA: dns; mta6.am0.yahoodns.net
+    Remote-MTA: dns; mta7.am0.yahoodns.net
+    Remote-MTA: dns; mx-aol.mail.gm0.yahoodns.net
+    Remote-MTA: dns; mx-apac.mail.gm0.yahoodns.net
+    Remote-MTA: dns; MX-BIZ.MAIL.AM0.YAHOODNS.NET
+    Remote-MTA: dns; mx-eu.mail.am0.yahoodns.net
+Errors:
+- Address syntax error
+    Diagnostic-Code: smtp; 501 Syntax error in parameters or arguments tnmpmscs
+    (same as mail.com)
+- Account does not exist
+    Diagnostic-Code: smtp; 554 delivery error: dd Not a valid recipient - atlas206.free.mail.ir2.yahoo.com
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.9 Message not accepted for policy reasons. See https://postmaster.verizonmedia.com/error-codes
+
+webfaction.com
+Hosts:
+    Remote-MTA: dns; mx7.webfaction.com
+    Remote-MTA: dns; mx8.webfaction.com
+    Remote-MTA: dns; mx9.webfaction.com
+Errors:
+- Temporary access denied
+    Diagnostic-Code: smtp; 454 4.7.1 <....@.....com>: Relay access denied
+- Unknown user
+    Diagnostic-Code: smtp; 550 5.1.1 <....@gamil.com>: Recipient address rejected: User unknown in virtual alias table
+
+rambler.ru
+Hosts:
+    Remote-MTA: dns; inmx.rambler.ru
+Errors:
+- RCPT blocked
+    Diagnostic-Code: smtp; 540 5.7.1 <....@rambler.ru>: recipient address rejected: Blocked
+- Account is inactive
+    Diagnostic-Code: smtp; 540 5.7.1 <....@rambler.ru>: recipient address rejected: Inactive
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.1 Spam message rejected; If this is not spam contact abuse
+
+bigmir.net
+Hosts:
+    Remote-MTA: dns; mx10.bigmir.net
+    Remote-MTA: dns; mx12.bigmir.net
+    Remote-MTA: dns; mx1.bigmir.net
+    Remote-MTA: dns; mx3.bigmir.net
+    Remote-MTA: dns; mx8.bigmir.net
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550-Rejected because 10.10.10.10 is in a black list at bl.spamcop.net
+- Account frozen
+    Diagnostic-Code: smtp; 550 Mailbox is frozen. See http://mail.bigmir.net/err/3/
+- Account does not exist
+    Diagnostic-Code: smtp; 550 User not found. See http://mail.bigmir.net/err/2/
+
+email.ua
+Hosts:
+    Remote-MTA: dns; mx3.email.ua
+Errors:
+- Account frozen
+    Diagnostic-Code: smtp; 550 Mailbox is frozen. See http://mail.i.ua/err/3/
+
+i.ua
+Hosts:
+    Remote-MTA: dns; mx7.i.ua
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550-Rejected because 10.10.10.10 is in a black list at bl.spamcop.net
+- Account frozen
+    Diagnostic-Code: smtp; 550 Mailbox is frozen. See http://mail.i.ua/err/3/
+
+kiev.ua
+Hosts:
+    Remote-MTA: dns; mx3g.mi6.kiev.ua
+    Remote-MTA: dns; out12.mi6.kiev.ua
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550-Rejected because 10.10.10.10 is in a black list at bl.spamcop.net
+    Diagnostic-Code: smtp; 550 Rejected because 10.10.10.10 is in a black list at bl.spamcop.net
+- Account frozen
+    Diagnostic-Code: smtp; 550 Mailbox is frozen. See http://mail.i.ua/err/3/
+- Account does not exist
+    Diagnostic-Code: smtp; 550 User not found. See http://mail.i.ua/err/2/
+
+ua.fm
+Hosts:
+    Remote-MTA: dns; mx2.ua.fm
+Errors:
+- Account frozen
+    Diagnostic-Code: smtp; 550 Mailbox is frozen. See http://mail.i.ua/err/3/
+
+inbox.eu
+Hosts:
+    Remote-MTA: dns; mx.inbox.eu
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550-5.7.1 Service unavailable; client [10.10.10.10] blocked using bl.spamcop.net
+- Account is inactive
+    Diagnostic-Code: smtp; 554 5.2.1 <....@inbox.eu>: Recipient address rejected: Inactive user
+- Unknown user
+    Diagnostic-Code: smtp; 554 5.7.1 <....@inbox.eu>: Recipient address rejected: User unknown - ....@inbox.eu
+
+qq.com
+Hosts:
+    Remote-MTA: dns; mx1.qq.com
+    Remote-MTA: dns; mx2.qq.com
+    Remote-MTA: dns; mx3.qq.com
+    Remote-MTA: dns; mxbiz1.qq.com
+    Remote-MTA: dns; mxbiz2.qq.com
+Errors:
+- Mailbox not found
+    Diagnostic-Code: smtp; 550 Mailbox not found. http://service.exmail.qq.com/cgi-bin/help?subtype=1&&id=20022&&no=1000728
+- Mailbox unavailable or access denied (maybe spam?)
+    Diagnostic-Code: smtp; 550 Mailbox unavailable or access denied [MPZVuXsTF9Mph3qOHUcEywz5KFak1TFBGIL4yd4SJZrVEphLNmX07yNHzSwfmJEXlg==  IP: 10.10.10.10].
+- Mail rejected by rcpts (maybe spam?)
+    Diagnostic-Code: smtp; 550 Mail is rejected by recipients [MPZVuXsTF9Mph3qOHUcEywz5OoTjqpdqezFt0x/njUuYNhmWahEIKHJ4vL7mdGfitA== IP: 10.10.10.10].
+
+naver.com
+Hosts:
+    Remote-MTA: dns; mx1.naver.com
+    Remote-MTA: dns; mx2.naver.com
+    Remote-MTA: dns; mx3.naver.com
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550 5.1.1 No such user KbIS4IH4T-q1a6jkVhuLyw - nsmtp
+
+email.ru
+Hosts:
+    Remote-MTA: dns; mail.email.ru
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 ....@email.ru unknown user account
+- Spam suspected
+    Diagnostic-Code: smtp; 551 5.9.9 Message you sent blocked by our bulk spam email filter. If you feel we mistreat you, do contact us: abuse@email.ru
+    Diagnostic-Code: smtp; 591 ....@email.ru You should authenticate first or your host [10.10.10.10] is blacklisted by bl.spamcop.net. No mail will be accepted. Send your questions to abuse@email.ru
+- Account overquota
+    Diagnostic-Code: smtp; 552 ....@email.ru account is full (quota exceeded), rejecting
+
+libero.it
+Hosts:
+    Remote-MTA: dns; smtp-in.libero.it
+Errors:
+- Slow down
+    Diagnostic-Code: smtp; 451 too many messages, slow down. [smtp-09.iol.local; LIB_650]
+- Invalid rcpt
+    Diagnostic-Code: smtp; 550 Invalid Recipient <....@libero.it>  [smtp-09.iol.local; LIB_520]
+- Account overquota
+    Diagnostic-Code: smtp; 550 <....@libero.it> User quota exceeded
+
+meta.ua
+Hosts:
+    Remote-MTA: dns; mxs.meta.ua
+Errors:
+- Soft greylist
+    Diagnostic-Code: smtp; 451 Greylisted, please try later. http://webmail.meta.ua/mta-faq.html?ip=10.10.10.10
+- Spam suspected
+    Diagnostic-Code: smtp; 550 SPAM FOUND
+- Account blacklisted sender
+    Diagnostic-Code: smtp; 550 sender@sender.com (sender@sender.com) blacklisted by ....@meta.ua
+- Account frozen
+    Diagnostic-Code: smtp; 550-Mailbox ....@meta.ua is locked due to inactivity for more than 4
+- User account banned on service
+    Diagnostic-Code: smtp; 550 Administrative prohibition - ....@meta.ua banned
+- User unknown
+    Diagnostic-Code: smtp; 550 Unknown user
+
+online.ua
+Hosts:
+    Remote-MTA: dns; relay-cluster1.online.ua
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550 Spam.
+- User unknown
+    Diagnostic-Code: smtp; 550 Message rejected. No such user here. Relaying denied.
+
+nate.com
+Hosts:
+    Remote-MTA: dns; mx1.nate.com
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550 5.1.1 No such user <....@nate.com>
+
+mynet.com
+Hosts:
+    Remote-MTA: dns; mbmail.mynet.com
+Errors:
+- Account frozen
+    Diagnostic-Code: smtp; 550 5.1.1 <....@mynet.com>: Recipient address rejected: undeliverable address: host mymail.mynet.com[212.101.97.136] said: 550 user mailbox is inactive / bu hesap aktif degil (#4.3.0) (in reply to RCPT TO command)
+- No such user
+    Diagnostic-Code: smtp; 550 5.1.1 <....@mynet.com>: Recipient address rejected: undeliverable address: host mymail.mynet.com[212.101.97.136] said: 550 no such user / bu isimde hesap yok (#4.3.0) (in reply to RCPT TO command)
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net; Blocked - see https://www.spamcop.net/bl.shtml?10.10.10.10
+
+mail.bg
+Hosts:
+    Remote-MTA: dns; mx3.mail.bg
+    Remote-MTA: dns; mx4.mail.bg
+    Remote-MTA: dns; mx5.mail.bg
+    Remote-MTA: dns; mx-balancer.mail.bg
+Errors:
+- Account frozen
+    Diagnostic-Code: smtp; 550 5.2.1 <....@mail.com.tr>: Recipient address rejected: Mailbox is temporarily suspended, not accepting messages
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <....@mail.com.tr>: Recipient address rejected: User unknown in virtual mailbox table
+
+mai.ru
+Hosts:
+    Remote-MTA: dns; MX.mai.ru
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <viktor090584@mai.ru>... User unknown
+
+aha.ru
+Hosts:
+    Remote-MTA: dns; mx30.aha.ru
+    Remote-MTA: dns; mx.aha.ru
+Errors:
+- Relay access denied
+    Diagnostic-Code: smtp; 554 5.7.1 <....@zz.ru>: Relay access denied
+- Spam suspected
+    Diagnostic-Code: smtp; 591  your host [10.10.10.10] is blacklisted by bl.spamcop.net. NOW PLEASE GO TO http://noc.zenon.net/rbl/
+
+inbox.lv
+Hosts:
+    Remote-MTA: dns; mx1.inbox.lv
+    Remote-MTA: dns; mx2.inbox.lv
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550-5.7.1 Service unavailable; client [10.10.10.10] blocked using bl.spamcop.net
+- Account frozen
+    Diagnostic-Code: smtp; 554 5.2.1 <....@inbox.lv>: Recipient address rejected: Inactive user
+- User unknown
+    Diagnostic-Code: smtp; 554 5.7.1 <....@inbox.lv>: Recipient address rejected: User unknown - ....@inbox.lv
+
+protonmail.ch
+Hosts:
+    Remote-MTA: dns; mail.protonmail.ch
+Errors:
+- Address does not exist
+    Diagnostic-Code: smtp; 550 5.1.1 <....@gail.com>: Recipient address rejected: Address does not exist
+- User overquota
+    Diagnostic-Code: smtp; 552 5.2.2 <....@protonmail.com>: Recipient address rejected: Mailbox quota exceeded
+
+blackhole.mx
+Hosts:
+    Remote-MTA: dns; void.blackhole.mx
+Errors:
+- Domain does not exist
+    Diagnostic-Code: smtp; 550 This domain is not in use and does not accept mail (A325E5CF-6F21-496E-BD92-7DFA9B289598.1)
+
+aquaray.com
+Hosts:
+    Remote-MTA: dns; mx0.aquaray.com
+    Remote-MTA: dns; mx1.aquaray.com
+Errors:
+- Relay denied
+    Diagnostic-Code: smtp; 554 5.7.1 <....@e-mail.fr>: Relay access denied
+
+hanmail.net
+Hosts:
+    Remote-MTA: dns; mx1.hanmail.net
+    Remote-MTA: dns; mx2.hanmail.net
+    Remote-MTA: dns; mx3.hanmail.net
+    Remote-MTA: dns; mx4.hanmail.net
+Errors:
+- User inactive
+    Diagnostic-Code: smtp; 550 5.2.1 RACT 10.10.10.10: Mailbox is inactive: <....@hanmail.net>
+- No such user
+    Diagnostic-Code: smtp; 550 5.1.1 RUSR 10.10.10.10: No such user: <....@hanmail.net>
+- Receiver denied sender
+    Diagnostic-Code: smtp; 550 5.7.1 RDENY 10.10.10.10: The receiver denied your mail. Please contact the receiver with another way.: <....@hanmail.net>
+

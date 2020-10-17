@@ -5,15 +5,31 @@ import (
 	"fmt"
 	"net/mail"
 	"os"
-	"strings"
 )
 
 var (
 	errInput = errors.New("no input specified")
 )
 
-//func ReadFile(job chan<- *mail.Message, fileName string) (err error) {
-func ReadFile(job chan<- *mail.Message, fileName string) {
+func ReadInput(job chan<- *mail.Message, fileNames []string) {
+	if len(fileNames) == 0 {
+		if err := readStdin(job); err != nil {
+			fmt.Println("Usage:")
+			fmt.Println("bouncer -c config.yaml file.eml")
+			fmt.Println("or")
+			fmt.Println("cat file.eml | bouncer -c config.yaml")
+			fmt.Println("or")
+			fmt.Println("use MTA pipe transport: 'command = /bin/bouncer -c /etc/bouncer.yaml'")
+			os.Exit(0)
+		}
+	}
+
+	for _, fileName := range fileNames {
+		readFile(job, fileName)
+	}
+}
+
+func readFile(job chan<- *mail.Message, fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return
@@ -27,26 +43,19 @@ func ReadFile(job chan<- *mail.Message, fileName string) {
 
 	m, err := mail.ReadMessage(file)
 	if err != nil {
-		//return err
 		return
 	}
 
-	//fmt.Fprintf("reader header: %s", strings.ToLower(m.Header.Get("X-Failed-Recipients")))
-	h := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
-	fmt.Printf("reader header: %s\n", h)
 	job <- m
-
-	//return nil
 }
 
-func ReadStdin(job chan<- *mail.Message) (err error) {
+func readStdin(job chan<- *mail.Message) (err error) {
 	inputData, err := os.Stdin.Stat()
 	if err != nil {
 		panic(err)
 	}
 
-	if (inputData.Mode() & os.ModeNamedPipe) != 0 {
-		//terminate()
+	if (inputData.Mode() & os.ModeNamedPipe) == 0 {
 		return errInput
 	}
 

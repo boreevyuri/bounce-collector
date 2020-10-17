@@ -7,7 +7,6 @@ import (
 	"bounce-collector/cmd/bouncer/writer"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/mail"
 	"os"
 	"strings"
@@ -27,7 +26,6 @@ func main() {
 		confFile  string
 		checkAddr string
 		conf      config.Conf
-		//config    conf
 	)
 
 	flag.StringVar(&confFile, "c", defaultConfigFile, "configuration file")
@@ -38,7 +36,7 @@ func main() {
 	conf.GetConf(confFile)
 
 	//open connection to redis
-	redis := writer.New(conf.Redis)
+	redis := writer.New(conf)
 
 	//we have rcpt addr -> check and exit
 	if len(checkAddr) != 0 {
@@ -54,21 +52,9 @@ func main() {
 
 	go processMail(done, redis, mailChan)
 
-	if len(fileNames) == 0 {
-		if err := reader.ReadStdin(mailChan); err != nil {
-			terminate()
-		}
-	} else {
-		for _, fileName := range fileNames {
-			reader.ReadFile(mailChan, fileName)
-			//err := reader.ReadFile(mailChan, fileName)
-			//fmt.Println("readfile started")
-			//if err != nil {
-			//	fmt.Printf("read file error")
-			//}
-		}
-		close(mailChan)
-	}
+	reader.ReadInput(mailChan, fileNames)
+
+	close(mailChan)
 	<-done
 
 	os.Exit(success)
@@ -76,30 +62,34 @@ func main() {
 
 func processMail(done chan<- bool, redis writer.ProcessRedis, in <-chan *mail.Message) {
 	for m := range in {
-		rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
 
-		body, _ := ioutil.ReadAll(m.Body)
-		res := analyzer.Analyze(body)
+		domain := analyzer.NewAnalyze(m)
 
-		messageInfo := analyzer.RecordInfo{
-			Domain:     getDomainFromAddress(rcpt),
-			Reason:     res.Reason,
-			Reporter:   parseFrom(m.Header.Get("From")),
-			SMTPCode:   res.SMTPCode,
-			SMTPStatus: res.SMTPStatus,
-			Date:       m.Header.Get("Date"),
-		}
+		fmt.Printf("Domain: %s", domain)
+		//rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
 
-		record := writer.Record{
-			Rcpt: rcpt,
-			TTL:  analyzer.SetTTL(messageInfo),
-			Info: messageInfo,
-		}
-
-		success := redis.Insert(record)
-		if !success {
-			os.Exit(failRedis)
-		}
+		//body, _ := ioutil.ReadAll(m.Body)
+		//res := analyzer.Analyze(body)
+		//
+		//messageInfo := analyzer.RecordInfo{
+		//	Domain:     getDomainFromAddress(rcpt),
+		//	Reason:     res.Reason,
+		//	Reporter:   parseFrom(m.Header.Get("From")),
+		//	SMTPCode:   res.SMTPCode,
+		//	SMTPStatus: res.SMTPStatus,
+		//	Date:       m.Header.Get("Date"),
+		//}
+		//
+		//record := writer.Record{
+		//	Rcpt: rcpt,
+		//	TTL:  analyzer.SetTTL(messageInfo),
+		//	Info: messageInfo,
+		//}
+		//
+		//success := redis.Insert(record)
+		//if !success {
+		//	os.Exit(failRedis)
+		//}
 	}
 
 	done <- true
@@ -119,77 +109,6 @@ func checkMail(redis writer.ProcessRedis, emailAddr string) string {
 	return decline
 }
 
-//func processNewMail(redis writer.ProcessRedis, fileName string) {
-//	var (
-//		messageInfo analyzer.RecordInfo
-//		record      writer.Record
-//	)
-//
-//	m := readInput(fileName)
-//	rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
-//	body, _ := ioutil.ReadAll(m.Body)
-//	res := analyzer.Analyze(body)
-//
-//	messageInfo = analyzer.RecordInfo{
-//		Domain:     getDomainFromAddress(rcpt),
-//		SMTPCode:   res.SMTPCode,
-//		SMTPStatus: res.SMTPStatus,
-//		Reason:     res.Reason,
-//		Date:       m.Header.Get("Date"),
-//		Reporter:   parseFrom(m.Header.Get("From")),
-//	}
-//
-//	record = writer.Record{
-//		Rcpt: rcpt,
-//		TTL:  analyzer.SetTTL(messageInfo),
-//		Info: messageInfo,
-//	}
-//
-//	if !redis.Insert(record) {
-//		os.Exit(failRedis)
-//	}
-//}
-
-//func readInput(fileName string) (m *mail.Message) {
-//	var reader *bufio.Reader
-//
-//	inputData, err := os.Stdin.Stat()
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	if (inputData.Mode() & os.ModeNamedPipe) == 0 {
-//		file, err := os.Open(fileName)
-//		if err != nil {
-//			fmt.Println("Usage:")
-//			fmt.Println("bouncer -c config.yaml file.eml")
-//			fmt.Println("or")
-//			fmt.Println("cat file.eml | bouncer -c config.yaml")
-//			fmt.Println("or")
-//			fmt.Println("use MTA pipe transport: 'command = /bin/bouncer -c /etc/bouncer.yaml'")
-//			os.Exit(runError)
-//		}
-//
-//		defer func() {
-//			if err := file.Close(); err != nil {
-//				os.Exit(runError)
-//			}
-//		}()
-//
-//		reader = bufio.NewReader(file)
-//	} else {
-//		reader = bufio.NewReader(os.Stdin)
-//	}
-//
-//	m, err = mail.ReadMessage(reader)
-//
-//	if err != nil {
-//		os.Exit(runError)
-//	}
-//
-//	return m
-//}
-
 func getDomainFromAddress(addr string) string {
 	a := strings.Split(addr, "@")
 	if len(a) > 1 {
@@ -208,12 +127,12 @@ func parseFrom(s string) string {
 	return e.Address
 }
 
-func terminate() {
-	fmt.Println("Usage:")
-	fmt.Println("bouncer -c config.yaml file.eml")
-	fmt.Println("or")
-	fmt.Println("cat file.eml | bouncer -c config.yaml")
-	fmt.Println("or")
-	fmt.Println("use MTA pipe transport: 'command = /bin/bouncer -c /etc/bouncer.yaml'")
-	os.Exit(0)
-}
+//func PrintUsage() {
+//	fmt.Println("Usage:")
+//	fmt.Println("bouncer -c config.yaml file.eml")
+//	fmt.Println("or")
+//	fmt.Println("cat file.eml | bouncer -c config.yaml")
+//	fmt.Println("or")
+//	fmt.Println("use MTA pipe transport: 'command = /bin/bouncer -c /etc/bouncer.yaml'")
+//	os.Exit(0)
+//}

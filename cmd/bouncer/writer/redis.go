@@ -39,9 +39,9 @@ type ProcessRedis interface {
 	Find(value string) bool
 }
 
-func New(conf config.RedisConfig) ProcessRedis {
+func New(conf config.Conf) ProcessRedis {
 	pr := make(processRedis)
-	go pr.run(conf)
+	go pr.run(conf.Redis)
 	return pr
 }
 
