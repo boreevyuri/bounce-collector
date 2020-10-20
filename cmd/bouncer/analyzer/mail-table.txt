@@ -430,3 +430,186 @@ Errors:
 - Receiver denied sender
     Diagnostic-Code: smtp; 550 5.7.1 RDENY 10.10.10.10: The receiver denied your mail. Please contact the receiver with another way.: <....@hanmail.net>
 
+hostedemail.com
+Hosts:
+    Remote-MTA: dns; mx.emil.co.cust.a.hostedemail.com
+    Remote-MTA: dns; mx.hover.com.cust.hostedemail.com
+    Remote-MTA: dns; mx.netidentity.com.cust.hostedemail.com
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using urbl.hostedemail.com; https://www.abusix.ai/search?q=10.10.10.10
+- Relay denied
+    Diagnostic-Code: smtp; 554 5.7.1 <....@fmail.com>: Relay access denied
+- Account does not exist
+    Diagnostic-Code: smtp; 554 5.7.1 <....@gil.com>: Recipient address rejected: user ....@gil.com does not exist
+
+xnet.uz
+Hosts:
+    Remote-MTA: dns; smtp.xnet.uz
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net; Blocked - see https://www.spamcop.net/bl.shtml?10.10.10.10
+
+hmail.com
+Hosts:
+    Remote-MTA: dns; ghmail.com
+    Remote-MTA: dns; hmail.com
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550 No Such User Here
+
+bkr.ru
+Hosts:
+    Remote-MTA: dns; bkr.ru
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550 "� ���� ������ ��� ������ ������������" (russian KOI8-R :-) )
+
+firemailbox.club
+Hosts:
+    Remote-MTA: dns; mx1.firemailbox.club
+    Remote-MTA: dns; mx2.firemailbox.club
+    Remote-MTA: dns; mx3.firemailbox.club
+    Remote-MTA: dns; mx4.firemailbox.club
+    Remote-MTA: dns; mx5.firemailbox.club
+Errors:
+- Account overquota
+    Diagnostic-Code: smtp; 552 Mailbox limit exeeded for this email address
+
+mimecast.com
+Hosts:
+    Remote-MTA: dns; eu-smtp-inbound-1.mimecast.com
+    Remote-MTA: dns; eu-smtp-inbound-2.mimecast.com
+    Remote-MTA: dns; us-smtp-inbound-1.mimecast.com
+    Remote-MTA: dns; us-smtp-inbound-2.mimecast.com
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550 spamcop.mimecast.org Blocked - see https://www.spamcop.net/bl.shtml?10.10.10.10. - https://community.mimecast.com/docs/DOC-1369#550 [8U1NKDNfNm-wcCQpPCfagw.uk44]
+- Invalid RCPT
+    Diagnostic-Code: smtp; 550 Invalid Recipient - https://community.mimecast.com/docs/DOC-1369#550 [ZTRrRdzgPzuV92UI76azbg.us245]
+
+gatewaymail.net
+Hosts:
+    Remote-MTA: dns; mx1.gatewaymail.net
+    Remote-MTA: dns; mx2.gatewaymail.net
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550 "#5.4.2.101 Hostname in blacklist"
+
+inbox.uz
+Hosts:
+    Remote-MTA: dns; mail.inbox.uz
+Errors:
+- Mailbox unknown
+    Diagnostic-Code: smtp; 450 4.1.1 <....@inbox.uz>: Recipient address rejected: undeliverable address: host mail.inbox.uz[/var/lib/imap/socket/lmtp] said: 550-Mailbox unknown.  Either there is no mailbox associated with this 550-name or you do not have authorization to see it. 550 5.1.1 User unknown (in reply to RCPT TO command)
+- Mailbox overquota
+    Diagnostic-Code: smtp; 450 4.1.1 <....@inbox.uz>: Recipient address rejected: undeliverable address: host mail.inbox.uz[/var/lib/imap/socket/lmtp] said: 552 5.2.2 Over quota (in reply to RCPT TO command)
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net; Blocked - see https://www.spamcop.net/bl.shtml?10.10.10.10
+
+web.de
+Hosts:
+    Remote-MTA: dns; mx-ha02.web.de
+    Remote-MTA: dns; mx-ha03.web.de
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 450-Requested mail action not taken: mailbox unavailable
+- Mailbox unavailable
+    Diagnostic-Code: smtp; 550 Requested action not taken: mailbox unavailable
+- Mailbox overquota
+    Diagnostic-Code: smtp; 552-Requested mail action aborted: exceeded storage allocation
+
+mxhichina.com
+Hosts:
+    Remote-MTA: dns; mxn.mxhichina.com
+Errors:
+- User not exist
+    Diagnostic-Code: smtp; 554 RCPT (....@mail.run) dosn't exist
+
+gmx.net
+Hosts:
+    Remote-MTA: dns; mx00.emig.gmx.net
+    Remote-MTA: dns; mx00.gmx.net
+    Remote-MTA: dns; mx01.emig.gmx.net
+    Remote-MTA: dns; mx01.gmx.net
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 450-Requested mail action not taken: mailbox unavailable
+- Mailbox unavailable
+    Diagnostic-Code: smtp; 550 Requested action not taken: mailbox unavailable
+- Overquota
+    Diagnostic-Code: smtp; 552-Requested mail action aborted: exceeded storage allocation
+- Spam detected
+    Diagnostic-Code: smtp; 554-gmx.net (mxgmx002) Nemesis ESMTP Service not available
+
+reg.ru
+Hosts:
+    Remote-MTA: dns; mx1.hosting.reg.ru
+    Remote-MTA: dns; r3.domainparking.reg.ru
+Errors:
+- Relay not permitted (host does not have any mail service)
+    Diagnostic-Code: smtp; 550 relay not permitted
+- Spam suspected (domain is on parking now)
+    Diagnostic-Code: smtp; 550 Message discarded as high-probability spam
+
+secureserver.net
+Hosts:
+    Remote-MTA: dns; smtp.secureserver.net
+Errors:
+- Recipient not found
+    Diagnostic-Code: smtp; 550 5.1.1 <....@2gmail.com> Recipient not found.  <http://x.co/irbounce>
+
+facebook.com
+Hosts:
+    Remote-MTA: dns; smtpin.vvv.facebook.com
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550 5.1.1 RCP-P1 Domain facebook.com no longer available https://www.facebook.com/postmaster/response_codes?ip=10.10.10.10#RCP-P1
+
+inbox.com
+Hosts:
+    Remote-MTA: dns; inc.inbox.com
+    Remote-MTA: dns; my.inbox.com
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550 Mailbox unavailable <....@inbox.com>
+
+emal.com
+Hosts:
+    Remote-MTA: dns; emal.com
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550
+
+laposte.net
+Hosts:
+    Remote-MTA: dns; smtpz4.laposte.net
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550 5.7.1 Service refuse. Veuillez essayer plus tard. service refused, please try later. LPN007_510
+
+beget.com
+Hosts:
+    Remote-MTA: dns; mx1.beget.com
+Errors:
+- User not found
+    Diagnostic-Code: smtp; 550 LTD BeGet: user not found.
+
+10minutemail.com
+Hosts:
+    Remote-MTA: dns; beta-mail.10minutemail.com
+Errors:
+- Any error
+    Diagnostic-Code: smtp; 554 Server disconnected
+
+sibmail.com
+Hosts:
+    Remote-MTA: dns; sibmail.com
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <....@sibmail.com>: Recipient address rejected: User unknown in virtual mailbox table
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net; Blocked - see https://www.spamcop.net/bl.shtml?10.10.10.10
+
