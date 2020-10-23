@@ -1,0 +1,398 @@
+Large Popular Providers:
+
+Provider: google.com
+Hosts: ^.+\.google\.com$
+Hard errors:
+    Absent: 550-5.1.1
+    Error name: 553-5.1.3
+    Disabled: 550-5.2.1
+    Overquota: 552-5.2.2
+    Spam: 550-5.7.1
+Soft errors:
+    Overrate: 450-4.2.1
+    Overquota: 452-4.2.2
+
+Provider: Microsoft
+Hosts: ^.+\.(hotmail|outlook)\.com$
+Hard errors:
+    Absent: 550 5.5.0
+    Disabled: 550 5.4.1
+    Spam: 550 5.7.1, 550 5.7.606
+
+Provider: Mail.ru (inbox.ru, bk.ru, list.ru)
+Hosts: ^.+\.mail\.ru$
+Hard errors:
+    Absent: 550 ... "user not found"
+    Terminated: 550 ... "user is terminated"
+    Error name: 550 ... "Ill-formatted e-mail address", 550 5.1.3 ... "Invalid mPOP user address"
+    Disabled: 550 ... "account is disabled"
+    Spam: "^550 spam message rejected."
+
+Provider: icloud.com
+Hosts: ^.+\.icloud\.com$
+Hard errors:
+    Absent (Error name): 550 5.1.1
+    Disabled: 550 5.2.1
+    Spam: 550 5.7.0, 550 5.7.1
+Soft errors:
+    Overquota: 450 4.2.2
+    Spam: 451 4.7.1
+
+Provider: Yandex
+Hosts: ^.+\.yandex\.(ru|net)$
+Hard errors:
+    Absent: "^550 5.7.1 No such user!"
+    Overquota: 550 5.2.2
+    Spam (user related): "^550 5.7.1 Policy rejection"
+    Spam: 554 5.7.1
+Soft errors:
+    Unknown error: 551 5.3.0
+
+Provider: Yahoo!
+Hosts: ^.+\.yahoodns\.net$
+Hard errors:
+    Absent: 554 delivery error: dd Not a valid recipient
+    Error name: 501 Syntax
+    Spam: 554 5.7.9
+
+Provider: yahoo.co.jp
+Hosts: ^.+\.yahoo\.co\.jp$
+Hard errors:
+    Absent: 554 (... dd This user doesn't have a yahoo.co.jp account ...)
+    Spam: 553
+
+Provider: Rambler
+Hosts: ^.+\.rambler\.ru$
+Hard errors:
+    Disabled: 540 5.7.1
+    Spam: 554 5.7.1
+
+Provider: Bigmir.net (almost all UA providers)
+Hosts: ^.+\.bigmir\.net$ , ^.+\.email\.ua$ , ^.+\.i\.ua$ , ^.+\.kiev\.ua$ , ^.+\.ua\.fm$
+Hard errors:
+    Absent: "550 User not found"
+    Disabled: "550 Mailbox is frozen"
+    Spam: "550-Rejected ... bl.spamcop.net", "550 Rejected ... bl.spamcop.net"
+
+Provider: protonmail.ch
+Hosts: ^.+\.protonmail\.ch$
+Hard errors:
+    Absent: 550 5.1.1
+    Overquota: 552 5.2.2
+
+==== Ukraine providers ====
+Provider: meta.ua
+Hosts: ^.+\.meta\.ua$
+Hard errors:
+    Absent: "550 Unknown user"
+    Disabled: "550-Mailbox" "550 ... banned"
+    Spam (user related): "550 ... blacklisted by"
+    Spam: "550 SPAM FOUND"
+
+Provider: online.ua
+Hosts: ^.+\.online\.ua$
+Hard errors:
+    Absent: "550 Message rejected. No such user here."
+    Spam: "550 Spam"
+
+==== German Providers ====
+Provider: web.de, gmx.net
+Hosts: ^.+\.web\.de$ , ^.+\.gmx\.net$
+Hard errors:
+    Absent: 550
+    Overquota: 552-Requested
+    Spam: 450, 554-gmx.net
+
+Provider: mail.de
+Hosts: ^.+\.mail\.de$
+Hard errors:
+    Absent: 550 Recipient does not exist
+
+Provider: t-online.de
+Hosts: ^.+\.t-online\.de$
+Hard errors:
+    Spam: 554
+
+==== KZ Providers ====
+
+Provider: mail.kz
+Hosts: ^.+\.mail\.kz$
+Hard errors:
+    Absent: 550 5.1.1
+    Spam: 554 5.7.1
+
+==== Bulgarian Providers ====
+Provider: abv.bg, mail.bg
+Hosts: ^.+\.abv\.bg$ , ^.+\.mail\.bg$
+Hard errors:
+    Absent: 550 5.1.1
+    Disabled: 550 5.2.1
+
+==== French ====
+Provider: orange.fr
+Hosts: ^.+\.orange\.fr$
+Hard errors:
+    Spam: 550 5.2.0 ... [506]
+
+Provider: aquaray.com (e-mail.fr)
+Hosts: ^.+\.aquaray\.com$
+Hard errors:
+    Absent: 554 5.7.1
+
+Provider: laposte.net
+Hosts: ^.+\.laposte\.net$
+Hard errors:
+    Spam: 550 5.7.1
+
+
+==== LV Providers ====
+Provider: LV inbox.eu, inbox.lv
+Hosts: ^.+\.inbox\.eu$ , ^.+\.inbox\.lv$
+Hard errors:
+    Absent: 554 5.7.1
+    Disabled: 554 5.2.1
+    Spam: 550-5.7.1
+
+==== UZ Providers ====
+Provider: inbox.uz
+Hosts: ^.+\.inbox\.uz$
+Hard errors:
+    Absent: 450 4.1.1 (... said: 550-Mailbox unknown ...)
+    Overquota: 450 4.1.1 (... said: 552 5.2.2 Over quota ...)
+    Spam: 554 5.7.1
+
+Provider: xnet.uz
+Hosts: ^.+\.xnet\.uz$
+Hard errors:
+    Spam: "554 5.7.1 Service unavailable"
+
+==== China ====
+Provider: qq.com (China)
+Hosts: ^.+\.qq\.com$
+Hard errors:
+    Absent: "550 Mailbox not found"
+    Disabled: "550 Mailbox unavailable or access denied"
+    Spam (user related): "550 Mail is rejected by recipients"
+
+Provider: mxhichina.com
+Hosts: ^.+\.mxhichina\.com$
+Hard errors:
+    Absent: 554
+
+==== Korean ====
+Provider: naver.com, hanmail.net, nate.com
+Hosts: ^.+\.naver\.com$ , ^.+\.hanmail\.net$ , ^.+\.nate\.com$
+Hard errors:
+    Absent: 550 5.1.1
+    Disabled: 550 5.2.1
+    Spam (user related): 550 5.7.1
+
+Provider: hmail.com
+Hosts: ^.+\.g?hmail\.com$
+Hard errors:
+    Absent: 550
+
+==== Italian ====
+Provider: libero.it, inwind.it
+Hosts: ^.+\.libero\.it$ , ^.+\.inwind\.it$
+Hard errors:
+    Absent: "550 Invalid Recipient"
+    Overquota: "550 ... exceeded"
+
+==== Turkey ====
+Provider: mynet.com
+Hosts: ^.+\.mynet\.com$
+Hard errors:
+    Absent: 550 5.1.1, "... said: 550 no such user ..."
+    Disabled: 550 5.1.1, "... 550 user mailbox is inactive ..."
+    Spam: 554 5.7.1
+
+==== Russian ====
+Provider: sibmail.com
+Hosts: ^.+\.sibmail\.com$
+Hard errors:
+    Absent: 550 5.1.1
+    Spam: 554 5.7.1
+
+Provider: ya.com
+Hosts: ^.+\.ya\.com$
+Hard errors:
+    Absent: "550 Relay not permitted / No such user"
+
+Provider: aha.ru
+Hosts: ^.+\.aha\.ru$
+Hard errors:
+    Absent: 554 5.7.1
+    Spam: 591
+
+Provider: ngs.ru
+Hosts: ^.+\.ngs\.ru$
+Hard errors:
+    Disabled: 554 5.7.1
+
+Provider: mtu.ru
+Hosts: ^.+\.mtu\.ru$
+Hard errors:
+    Absent: 550 5.1.1
+
+
+==== USA ====
+Provider: Mail.com
+Hosts: ^.+\.mail\.com$
+Hard errors:
+    Absent: 550
+    Error name: 501
+    Spam: 450-Requested
+
+Provider: inbox.com
+Hosts: ^.+\.inbox\.com$
+Hard errors:
+    Absent: 550
+
+Provider: facebook.com
+Hosts: ^.+\.facebook\.com$
+Hard errors:
+    Absent: 550 5.1.1 RCP-P1
+
+
+
+==== Other ====
+Provider: box.az
+Hosts: ^.+\.box\.az$
+Hard errors:
+    Absent: 550 5.1.1
+
+Provider: freemail.hu
+Hosts: ^.+\.freemail\.hu$
+Hard errors:
+    Absent: 550 5.1.1
+    Spam: 550 5.7.1
+
+Provider: mimecast.com
+Hosts: ^.+\.mimecast\.com$
+Hard errors:
+    Absent: "550 Invalid Recipient"
+    Spam: "550 spamcop.mimecast.com"
+
+Provider: viacom.com
+Hosts: ^.+\.viacom\.com$
+Hard errors:
+    Absent: 554
+
+Provider: finalkalite.com
+Hosts: ^.+\.finalkalite\.com$
+Hard errors:
+    Absent: 530
+
+
+==== Like big but small ====
+
+Provider: gatewaymail.net
+Hosts: ^.+\.gatewaymail\.net$
+Hard errors:
+    Spam: 550
+
+Provider: email.ru (Golden)
+Hosts: ^.+\.email\.ru$
+Hard errors:
+    Absent: 550
+    Spam: 551, 591
+    Overquota: 552
+
+==== Mistaken mails ====
+Provider: webfaction.com (gamil.com)
+Hosts: ^.+\.webfaction\.com$
+Hard errors:
+    Absent: 550 5.1.1, 454 4.7.1
+
+Provider: bkr.ru
+Hosts: ^.+\.bkr\.ru$
+Hard errors:
+    Absent: 550
+
+Provider: emal.com
+Hosts: ^.+\.email\.com$
+Hard errors:
+    Absent: 550
+
+Provider: spamhero.com
+Hosts: ^.+\.spamhero\.com$
+Hard errors:
+    Absent: 550 5.1.1
+
+Provider: 45gmail.com
+Hosts: ^.+\.45gmail\.com$
+Hard errors:
+    Absent: 550
+
+Provider: mai.ru
+Hosts: ^.+\.mai\.ru$
+Hard errors:
+    Absent: 550 5.1.1
+
+Provider: securence.com
+Hosts: ^.+\.securence\.com$
+Hard errors:
+    Absent: 554
+
+Provider: qmail.ru
+Hosts: ^.+\.qmail\.ru$
+Hard errors:
+    Absent: 550
+
+Provider: secureserver.net
+Hosts: ^.+\.secureserver\.net$
+Hard errors:
+    Absent: 550 5.1.1
+
+Provider: beget.com
+Hosts: ^.+\.beget\.com$
+Hard errors:
+    Absent: 550 ... not found
+
+==== Fake Mail Providers ====
+
+Provider: blackhole.mx
+Hosts: void.blackhole.mx
+Hard errors:
+    Absent: 550
+
+Provider: 10minutemail.com
+Hosts: ^.+\.10minutemail\.com$
+Hard errors:
+    Absent: 554
+
+Provider: crazymailing.com
+Hosts: ^.+\.crazymailing\.com$
+Hard errors:
+    Absent: 550 5.1.1
+
+Provider: firemailbox.club, mozej.com
+Hosts: ^.+\.firemailbox\.club$ , ^.+\.mozej\.com$
+Hard errors:
+    Overquota: 552 (exeeded <--- error)
+
+==== Hosting Providers ====
+
+Provider: hostedemail.com (gil.com)
+Hosts: ^.+\.hostedemail\.com$
+Hard errors:
+    Absent: "554 5.7.1 ... does not exist" , "554 5.7.1 ... access denied"
+    Spam: "554 5.7.1 Service unavailable"
+
+Provider: reg.ru
+Hosts: ^.+\.reg\.ru$
+Hard errors:
+    Absent: 550 relay not permitted, 550 Message discarded
+
+Provider: 123-reg.co.uk
+Hosts: ^.+\.123-reg\.co\.uk$
+Hard errors:
+    Absent: 550
+    Spam: 550-Mailcore
+
+Provider:
+Hosts: ^.+\.valuehost\.ru$
+Hard errors:
+    Absent: 550 5.1.1
+

@@ -613,3 +613,177 @@ Errors:
     Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net
     Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net; Blocked - see https://www.spamcop.net/bl.shtml?10.10.10.10
 
+mozej.com
+Hosts:
+    Remote-MTA: dns; mx1.mozej.com
+    Remote-MTA: dns; mx2.mozej.com
+    Remote-MTA: dns; mx3.mozej.com
+    Remote-MTA: dns; mx4.mozej.com
+    Remote-MTA: dns; mx5.mozej.com
+Errors:
+- OverQuota
+    Diagnostic-Code: smtp; 552 Mailbox limit exeeded for this email address
+
+box.az
+Hosts:
+    Remote-MTA: dns; mx01.box.az
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <....@box.az>: Recipient address rejected: User unknown
+
+mail.kz
+Hosts:
+    Remote-MTA: dns; post.mail.kz
+Errors:
+- Rejected RCPT
+    Diagnostic-Code: smtp; 550 5.1.1 <tarkovskiimark@mail.kz>: Recipient address rejected: mail.kz
+- Spam suspected
+    Diagnostic-Code: smtp; 554 5.7.1 Service unavailable; Client host [10.10.10.10] blocked using bl.spamcop.net; Blocked - see https://www.spamcop.net/bl.shtml?10.10.10.10
+
+securence.com
+Hosts:
+    Remote-MTA: dns; smtp1-mke.securence.com
+    Remote-MTA: dns; smtp1-msp.securence.com
+Errors:
+- No valid rcpts
+    Diagnostic-Code: smtp; 554 no valid recipients, bye
+
+t-online.de
+Hosts:
+    Remote-MTA: dns; mx00.t-online.de
+    Remote-MTA: dns; mx01.t-online.de
+    Remote-MTA: dns; mx02.t-online.de
+    Remote-MTA: dns; mx03.t-online.de
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 554 IP=10.10.10.10 - A problem occurred. (Ask your postmaster for help or to contact tosa@rx.t-online.de to clarify.) (BL)
+
+spamhero.com
+Hosts:
+    Remote-MTA: dns; egmail-com.p10.spamhero.com
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <....@egmail.com>: Recipient address rejected: User unknown in virtual mailbox table
+
+viacom.com
+Hosts:
+    Remote-MTA: dns; mailw.viacom.com
+Errors:
+- Block
+    Diagnostic-Code: smtp; 554 mail04.viacom.com
+
+crazymailing.com
+Hosts:
+    Remote-MTA: dns; mail.crazymailing.com
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <....@vmani.com>: Recipient address rejected: User unknown in local recipient table
+
+123-reg.co.uk
+Hosts:
+    Remote-MTA: dns; mx0.123-reg.co.uk
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550-Mailcore(2503): 10.10.10.10 is blacklisted and not authenticated. Please
+- Domain not hosted
+    Diagnostic-Code: smtp; 550 This domain is not hosted here
+
+45gmail.com
+Hosts:
+    Remote-MTA: dns; mail.45gmail.com
+Errors:
+- Domain not hosted
+    Diagnostic-Code: smtp; 550 This domain is not in use and does not accept mail (CFF84EFC-E83F-42A2-A223-9B754DFE9245.1)
+
+abv.bg
+Hosts:
+    Remote-MTA: dns; pmx.abv.bg
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <stefankollev@abv.bg>: Recipient address rejected: User unknown in virtual mailbox table
+
+finalkalite.com
+Hosts:
+    Remote-MTA: dns; mx01.finalkalite.com
+Errors:
+- Denied
+    Diagnostic-Code: smtp; 530 isimtescil.net ESMTP MailEnable Service, Version: 9.51--9.51 denied access at 10/10/20 00:46:59
+
+freemail.hu
+Hosts:
+    Remote-MTA: dns; fmx.freemail.hu
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550 5.7.1 Message denied by policy
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <....@freemail.hu>: Recipient address rejected: u'Receive - Email does not exist. (Incoming: ....@freemail.hu, after decryption: ....@freemail.hu)'
+
+inwind.it
+Hosts:
+    Remote-MTA: dns; smtp-in.inwind.it
+Errors:
+- Slowdown
+    Diagnostic-Code: smtp; 451 too many messages, slow down. [smtp-09.iol.local; LIB_650]: retry timeout exceeded
+
+mail.de
+Hosts:
+    Remote-MTA: dns; mx01.mail.de
+    Remote-MTA: dns; mx02.mail.de
+Errors:
+- Rcpt not exist
+    Diagnostic-Code: smtp; 550 Recipient does not exist
+
+mtu.ru
+Hosts:
+    Remote-MTA: dns; umail.mtu.ru
+Errors:
+- Rcpt rejected
+    Diagnostic-Code: smtp; 550 5.1.1 <....@umail.ru> recipient rejected
+
+ngs.ru
+Hosts:
+    Remote-MTA: dns; imx6.ngs.ru
+Errors:
+- User inactive
+    Diagnostic-Code: smtp; 554 5.7.1 User <....@ngs.ru> should log in (through a web-interface) to enable receiving the mail
+
+orange.fr
+Hosts:
+    Remote-MTA: dns; smtp-in.orange.fr
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 550 5.2.0 Mail rejete. Mail rejected. ofr_506 [506]
+
+qmail.ru
+Hosts:
+    Remote-MTA: dns; qmail.ru
+Errors:
+- Relay not permitted
+    Diagnostic-Code: smtp; 550 relay not permitted
+
+valuehost.ru
+Hosts:
+    Remote-MTA: dns; mxs.valuehost.ru
+Errors:
+- User unknown
+    Diagnostic-Code: smtp; 550 5.1.1 <....@invox.ru>: Recipient address rejected: User unknown in virtual mailbox table
+
+ya.com
+Hosts:
+    Remote-MTA: dns; mx.ya.com
+Errors:
+- No such user
+    Diagnostic-Code: smtp; 550 Relay not permitted / No such user
+
+yahoo.co.jp
+Hosts:
+    Remote-MTA: dns; mx1.mail.yahoo.co.jp
+    Remote-MTA: dns; mx2.mail.yahoo.co.jp
+    Remote-MTA: dns; mx3.mail.yahoo.co.jp
+    Remote-MTA: dns; mx5.mail.yahoo.co.jp
+Errors:
+- Spam suspected
+    Diagnostic-Code: smtp; 553 Mail from 10.10.10.10 not allowed - VS98-IP0 deferred - see https://www.yahoo-help.jp/app/answers/detail/a_id/80854/p/622
+- No such user
+    Diagnostic-Code: smtp; 554 delivery error: dd This user doesn't have a yahoo.co.jp account (....@yahoo.co.jp) [-5] - mta790.mail.djm.yahoo.co.jp
+

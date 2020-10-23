@@ -8,3 +8,6 @@ fast-check:
       status: 4.7.1
       action: pass
       ttl: 0
+
+error-codes:
+  - google.com:
