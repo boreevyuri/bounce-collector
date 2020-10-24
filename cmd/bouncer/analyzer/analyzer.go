@@ -2,6 +2,8 @@ package analyzer
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"mime"
 	"mime/multipart"
 	"net/mail"
@@ -57,12 +59,71 @@ func Analyze(body []byte) Result {
 	}
 }
 
-func NewAnalyze(m *mail.Message) (d string, err error) {
+//func ParsePart(mime_data io.Reader, boundary string) {
+//	reader := multipart.NewReader(mime_data, boundary)
+//	if reader == nil {
+//		return
+//	}
+//
+//	for {
+//		new_part, err := reader.NextPart()
+//		if err == io.EOF {
+//			break
+//		}
+//		if err != nil {
+//			fmt.Println("Error going parse MIME parts -", err)
+//			break
+//		}
+//
+//		mediaType, _, err := mime.ParseMediaType(new_part.Header.Get(contentTypeHeader))
+//		if mediaType == "message/delivery-status" {
+//			ParsePart(new_part, "")
+//		} else {
+//			mta, _, _ := mime.ParseMediaType(new_part.Header.Get("Reporting-MTA"))
+//			fmt.Println("MTA: ", mta)
+//		}
+//	}
+//}
+
+func NewAnalyze(m *mail.Message) (s string, err error) {
 
 	boundary, err := findBoundary(&m.Header)
-	bodyReader := multipart.NewReader(m.Body, boundary)
+	if err != nil {
+		return s, err
+	}
 
-	return
+	fmt.Printf("%s\n", boundary)
+	bodyReader := multipart.NewReader(m.Body, boundary)
+	if bodyReader == nil {
+		return s, nil
+	}
+
+	for {
+		newPart, err := bodyReader.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Println("Error going through MIME parts -", err)
+			break
+		}
+
+		mediaType, _, err := mime.ParseMediaType(newPart.Header.Get(contentTypeHeader))
+		if mediaType == "message/delivery-status" {
+			remoteMta, _, err := mime.ParseMediaType(newPart.Header.Get("Reporting-MTA"))
+			if err != nil {
+				fmt.Println("Error reading Remote-MTA -", err)
+			}
+			fmt.Printf("%s", remoteMta)
+			//partData, err := ioutil.ReadAll(newPart)
+			//if err != nil {
+			//	fmt.Println("Error reading partData -", err)
+			//}
+			//fmt.Printf("%s", partData)
+		}
+	}
+
+	return "", nil
 }
 
 func findBoundary(h *mail.Header) (boundary string, err error) {

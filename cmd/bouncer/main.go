@@ -17,7 +17,7 @@ const (
 	success           int    = 0
 	pass              string = "Pass"
 	decline           string = "Decline"
-	failRedis         int    = 12
+	//failRedis         int    = 12
 	//runError          int    = 1
 )
 
@@ -50,7 +50,8 @@ func main() {
 	mailChan := make(chan *mail.Message)
 	done := make(chan bool)
 
-	go processMail(done, redis, mailChan)
+	//go processMail(done, redis, mailChan)
+	go processMail(done, mailChan)
 
 	reader.ReadInput(mailChan, fileNames)
 
@@ -60,11 +61,14 @@ func main() {
 	os.Exit(success)
 }
 
-func processMail(done chan<- bool, redis writer.ProcessRedis, in <-chan *mail.Message) {
+//func processMail(done chan<- bool, redis writer.ProcessRedis, in <-chan *mail.Message) {
+func processMail(done chan<- bool, in <-chan *mail.Message) {
 	for m := range in {
 
-		domain := analyzer.NewAnalyze(m)
-
+		domain, err := analyzer.NewAnalyze(m)
+		if err != nil {
+			fmt.Printf("Error!!!")
+		}
 		fmt.Printf("Domain: %s", domain)
 		//rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
 
