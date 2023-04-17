@@ -2,19 +2,20 @@ package main
 
 import (
 	"bounce-collector/cmd/bouncer/analyzer"
+	"bounce-collector/cmd/bouncer/config"
 	"bounce-collector/cmd/bouncer/writer"
 	"bufio"
+	"context"
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
+	"io"
 	"net/mail"
 	"os"
 	"strings"
 )
 
 const (
-	//DefaultConfigFile sets default config file
+	// DefaultConfigFile sets default config file
 	DefaultConfigFile     = "/etc/bouncer.conf"
 	success           int = 0
 	runError          int = 1
@@ -22,44 +23,58 @@ const (
 	failRedis         int = 12
 )
 
-type conf struct {
-	Redis writer.Config `yaml:"redis"`
-}
-
 func main() {
 	var (
 		confFile  string
 		checkAddr string
-		config    conf
+		// config    conf
 	)
 
 	flag.StringVar(&confFile, "c", DefaultConfigFile, "configuration file")
 	flag.StringVar(&checkAddr, "r", "", "email address to check existence")
 	flag.Parse()
 
+	// read config file
+	conf := new(config.Conf)
+	err := conf.Parse(confFile)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(failConfig)
+	}
+
+	// if there is address to check, check it and exit
+	if len(checkAddr) != 0 {
+		msg := checkMail(checkAddr, conf.Redis)
+		// send result to stdout and exit
+		fmt.Println(msg)
+		os.Exit(success)
+	}
+
+	// Check if we need to process mail from file or check address
 	fileName := flag.Arg(0)
 
-	config.getConf(confFile)
-
-	if len(checkAddr) == 0 {
-		processMail(fileName, config.Redis)
-	} else {
-		msg := checkMail(checkAddr, config.Redis)
-		fmt.Println(msg)
-	}
+	// get mail from stdin or file and process it
+	processMail(fileName, conf.Redis)
 
 	os.Exit(success)
 }
 
-func checkMail(email string, redis writer.Config) string {
-	if writer.IsPresent(email, redis) {
+func checkMail(email string, redisConfig config.RedisConfig) string {
+	// create simple context
+	ctx := context.Background()
+	if writer.IsPresent(ctx, email, redisConfig) {
 		return "Pass"
 	}
 
 	return "Decline"
 }
 
-func processMail(fileName string, redis writer.Config) {
+func processMail(fileName string, redisConfig config.RedisConfig) {
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	// create simple context
+	ctx := context.Background()
+
 	var (
 		messageInfo analyzer.RecordInfo
 		record      writer.Record
@@ -67,7 +82,7 @@ func processMail(fileName string, redis writer.Config) {
 
 	m := readInput(fileName)
 	rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
-	body, _ := ioutil.ReadAll(m.Body)
+	body, _ := io.ReadAll(m.Body)
 	res := analyzer.Analyze(body)
 
 	messageInfo = analyzer.RecordInfo{
@@ -85,7 +100,7 @@ func processMail(fileName string, redis writer.Config) {
 		Info: messageInfo,
 	}
 
-	err := writer.PutRecord(record, redis)
+	err := writer.PutRecord(ctx, record, redisConfig)
 	if err != nil {
 		fmt.Printf("Collector error: %+v", err)
 		os.Exit(failRedis)
@@ -148,27 +163,27 @@ func parseFrom(s string) string {
 	return e.Address
 }
 
-func isValidConfigFilename(filename string) bool {
-	return len(filename) > 0
-}
+// func isValidConfigFilename(filename string) bool {
+//	return len(filename) > 0
+// }
 
-func (c *conf) getConf(filename string) *conf {
-	if isValidConfigFilename(filename) {
-		yamlFile, err := ioutil.ReadFile(filename)
-		if err != nil {
-			fmt.Println("no config file specified")
-			os.Exit(failConfig)
-		}
-
-		err = yaml.Unmarshal(yamlFile, c)
-
-		if err != nil {
-			fmt.Println(yamlFile)
-			os.Exit(failConfig)
-		}
-
-		return c
-	}
-
-	return nil
-}
+// func (c *conf) getConf(filename string) *conf {
+//	if isValidConfigFilename(filename) {
+//		yamlFile, err := os.ReadFile(filename)
+//		if err != nil {
+//			fmt.Println("no config file specified")
+//			os.Exit(failConfig)
+//		}
+//
+//		err = yaml.Unmarshal(yamlFile, c)
+//
+//		if err != nil {
+//			fmt.Println(yamlFile)
+//			os.Exit(failConfig)
+//		}
+//
+//		return c
+//	}
+//
+//	return nil
+// }

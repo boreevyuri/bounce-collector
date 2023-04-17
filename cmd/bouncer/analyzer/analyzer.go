@@ -19,7 +19,7 @@ const (
 
 // Result struct describes result.
 type Result struct {
-	//Type	BounceType
+	// Type	BounceType
 	SMTPCode   int
 	SMTPStatus string
 	Reason     string
@@ -49,7 +49,7 @@ func Analyze(body []byte) Result {
 }
 
 func findBounceMessage(body []byte) (res Result, err error) {
-	//Ценный Diagnostic-Code находится обычно в конце тела, поэтому перевернем body и приведем к нижнему регистру
+	// Ценный Diagnostic-Code находится обычно в конце тела, поэтому перевернем body и приведем к нижнему регистру
 	lns := strings.Split(strings.ToLower(string(body)), "\n")
 	numLines := len(lns)
 	lines := make([]string, numLines)
@@ -58,7 +58,7 @@ func findBounceMessage(body []byte) (res Result, err error) {
 		lines[numLines-i-1] = l
 	}
 
-	//Ищем нужные вхождения
+	// Ищем нужные вхождения
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
@@ -106,9 +106,9 @@ func analyzeDiagCode(s string) (res Result, err error) {
 		statusRegexp = regexp.MustCompile(`^\d\.\d\.\d+$`)
 	)
 
-	//status := statusNotFound
+	// status := statusNotFound
 
-	//вначале идет smtp;
+	// вначале идет smtp;
 	parts := strings.Split(strings.TrimSpace(strings.TrimPrefix(s, "smtp;")), " ")
 
 	if len(parts) > 1 {
