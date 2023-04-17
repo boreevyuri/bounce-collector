@@ -30,7 +30,7 @@ const (
 
 // Result struct describes result.
 type Result struct {
-	//Type	BounceType
+	// Type	BounceType
 	SMTPCode   int
 	SMTPStatus string
 	Reason     string
@@ -46,20 +46,20 @@ type RecordInfo struct {
 	Date       string `json:"date"`
 }
 
-// Analyze - analyses body for error messages in it.
-func Analyze(body []byte) Result {
-	if res, err := findBounceMessage(body); err == nil {
-		return res
-	}
+//// Analyze body for error messages in it.
+// func Analyze(body []byte) Result {
+//	if res, err := findBounceMessage(body); err == nil {
+//		return res
+//	}
+//
+//	return Result{
+//		SMTPCode:   0,
+//		SMTPStatus: "0.0.0",
+//		Reason:     "Unable to find reason",
+//	}
+// }
 
-	return Result{
-		SMTPCode:   0,
-		SMTPStatus: "0.0.0",
-		Reason:     "Unable to find reason",
-	}
-}
-
-//func ParsePart(mime_data io.Reader, boundary string) {
+// func ParsePart(mime_data io.Reader, boundary string) {
 //	reader := multipart.NewReader(mime_data, boundary)
 //	if reader == nil {
 //		return
@@ -83,10 +83,10 @@ func Analyze(body []byte) Result {
 //			fmt.Println("MTA: ", mta)
 //		}
 //	}
-//}
+// }
 
+// NewAnalyze - analyzes message.
 func NewAnalyze(m *mail.Message) (s string, err error) {
-
 	boundary, err := findBoundary(&m.Header)
 	if err != nil {
 		return s, err
@@ -100,7 +100,7 @@ func NewAnalyze(m *mail.Message) (s string, err error) {
 
 	for {
 		newPart, err := bodyReader.NextPart()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -109,17 +109,20 @@ func NewAnalyze(m *mail.Message) (s string, err error) {
 		}
 
 		mediaType, _, err := mime.ParseMediaType(newPart.Header.Get(contentTypeHeader))
+		if err != nil {
+			fmt.Println("Error reading mediaType -", err)
+		}
 		if mediaType == "message/delivery-status" {
 			remoteMta, _, err := mime.ParseMediaType(newPart.Header.Get("Reporting-MTA"))
 			if err != nil {
 				fmt.Println("Error reading Remote-MTA -", err)
 			}
 			fmt.Printf("%s", remoteMta)
-			//partData, err := ioutil.ReadAll(newPart)
-			//if err != nil {
+			// partData, err := ioutil.ReadAll(newPart)
+			// if err != nil {
 			//	fmt.Println("Error reading partData -", err)
-			//}
-			//fmt.Printf("%s", partData)
+			// }
+			// fmt.Printf("%s", partData)
 		}
 	}
 
@@ -141,7 +144,7 @@ func findBoundary(h *mail.Header) (boundary string, err error) {
 }
 
 func findBounceMessage(body []byte) (res Result, err error) {
-	//Ценный Diagnostic-Code находится обычно в конце тела, поэтому перевернем body и приведем к нижнему регистру
+	// Ценный Diagnostic-Code находится обычно в конце тела, поэтому перевернем body и приведем к нижнему регистру
 	lns := strings.Split(strings.ToLower(string(body)), "\n")
 	numLines := len(lns)
 	lines := make([]string, numLines)
@@ -150,7 +153,7 @@ func findBounceMessage(body []byte) (res Result, err error) {
 		lines[numLines-i-1] = l
 	}
 
-	//Ищем нужные вхождения
+	// Ищем нужные вхождения
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
@@ -198,9 +201,9 @@ func analyzeDiagCode(s string) (res Result, err error) {
 		statusRegexp = regexp.MustCompile(`^\d\.\d\.\d+$`)
 	)
 
-	//status := statusNotFound
+	// status := statusNotFound
 
-	//вначале идет smtp;
+	// вначале идет smtp;
 	parts := strings.Split(strings.TrimSpace(strings.TrimPrefix(s, "smtp;")), " ")
 
 	if len(parts) > 1 {

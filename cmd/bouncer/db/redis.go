@@ -1,4 +1,4 @@
-package writer
+package db
 
 import (
 	"bounce-collector/cmd/bouncer/analyzer"
@@ -9,41 +9,10 @@ import (
 	"github.com/go-redis/redis"
 	"log"
 	"strings"
-	"time"
 )
 
-type commandAction int
-
-const (
-	find commandAction = iota
-	insert
-)
-
-// Record - struct for write to redis.
-type Record struct {
-	Rcpt string
-	TTL  time.Duration
-	Info analyzer.RecordInfo
-}
-
-type commandData struct {
-	action commandAction
-	value  interface{}
-	result chan<- bool
-}
-
+// processRedis - channel for commandData.
 type processRedis chan commandData
-
-type ProcessRedis interface {
-	Insert(value Record) bool
-	Find(value string) bool
-}
-
-func New(conf config.Conf) ProcessRedis {
-	pr := make(processRedis)
-	go pr.run(conf.Redis)
-	return pr
-}
 
 func (pr processRedis) run(conf config.RedisConfig) {
 	rc := redis.NewClient(&redis.Options{
@@ -58,17 +27,17 @@ func (pr processRedis) run(conf config.RedisConfig) {
 		log.Fatal("unable to connect redis:", err)
 	}
 
-	//store = make(map[string]interface{})
+	// store = make(map[string]interface{})
 	for command := range pr {
 		switch command.action {
-		case find:
+		case doFind:
 			found := findRecord(rc, command.value)
 			command.result <- found
-		case insert:
+		case doUpsert:
 			err := insertRecord(rc, command.value)
 			if err != nil {
-				log.Fatal("Unable to insert record:", err)
-				//os.Exit(13)
+				log.Fatal("Unable to doUpsert record:", err)
+				// os.Exit(13)
 			}
 			command.result <- true
 		}
@@ -77,13 +46,13 @@ func (pr processRedis) run(conf config.RedisConfig) {
 
 func (pr processRedis) Insert(value Record) bool {
 	reply := make(chan bool)
-	pr <- commandData{action: insert, value: value, result: reply}
+	pr <- commandData{action: doUpsert, value: value, result: reply}
 	return <-reply
 }
 
 func (pr processRedis) Find(value string) bool {
 	reply := make(chan bool)
-	pr <- commandData{action: find, value: value, result: reply}
+	pr <- commandData{action: doFind, value: value, result: reply}
 	return <-reply
 }
 

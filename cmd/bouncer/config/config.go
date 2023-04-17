@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 )
 
@@ -36,7 +35,7 @@ func readConfigFile(filename string) []byte {
 		exitError("no config file specified")
 	}
 
-	fileBytes, err := ioutil.ReadFile(filename)
+	fileBytes, err := os.ReadFile(filename)
 	if err != nil {
 		exitError("config file not found")
 	}
