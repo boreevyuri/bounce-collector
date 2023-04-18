@@ -34,7 +34,7 @@ func (r *redisConnection) run(conf config.RedisConfig) {
 	for cmd := range *r {
 		switch cmd.action {
 		case doFind:
-			_, err := rc.Get(ctx, cmd.data.key).Result()
+			_, err := rc.Get(ctx, cmd.data.Key).Result()
 			switch {
 			case errors.Is(err, redis.Nil):
 				cmd.result <- false
@@ -43,7 +43,7 @@ func (r *redisConnection) run(conf config.RedisConfig) {
 			}
 			cmd.result <- true
 		case doUpsert:
-			err := rc.Set(ctx, cmd.data.key, cmd.data.value, cmd.data.ttl).Err()
+			err := rc.Set(ctx, cmd.data.Key, cmd.data.Value, cmd.data.TTL).Err()
 			if err != nil {
 				cmd.result <- false
 			}
@@ -51,15 +51,15 @@ func (r *redisConnection) run(conf config.RedisConfig) {
 		case doClose:
 			err := rc.Close()
 			if err != nil {
-				log.Fatal("unable to close redis connection:", err)
+				log.Panic("unable to close redis connection:", err)
 			}
 			return
 		}
 	}
 }
 
-// Insert inserts key-value pair into redis.
-func (r *redisConnection) Insert(payload recordPayload) bool {
+// Insert inserts Key-Value pair into redis.
+func (r *redisConnection) Insert(payload RecordPayload) bool {
 	cmd := command{
 		action: doUpsert,
 		data:   payload,
@@ -69,12 +69,12 @@ func (r *redisConnection) Insert(payload recordPayload) bool {
 	return <-cmd.result
 }
 
-// Find checks if key exists in redis.
+// Find checks if Key exists in redis.
 func (r *redisConnection) Find(key string) bool {
 	cmd := command{
 		action: doFind,
-		data: recordPayload{
-			key: key,
+		data: RecordPayload{
+			Key: key,
 		},
 		result: make(chan bool),
 	}

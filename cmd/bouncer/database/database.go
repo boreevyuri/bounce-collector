@@ -16,23 +16,23 @@ const (
 	doClose
 )
 
-// recordPayload - struct for passing data to command channel.
-type recordPayload struct {
-	key   string
-	value analyzer.RecordInfo
-	ttl   time.Duration
+// RecordPayload - struct for passing data to command channel.
+type RecordPayload struct {
+	Key   string
+	Value analyzer.RecordInfo
+	TTL   time.Duration
 }
 
 // command - struct for passing command to command channel.
 type command struct {
 	action commandAction
-	data   recordPayload
+	data   RecordPayload
 	result chan bool
 }
 
 // DB - database interface.
 type DB interface {
-	Insert(payload recordPayload) bool
+	Insert(payload RecordPayload) bool
 	Find(key string) bool
 	Close()
 }

@@ -1,7 +1,9 @@
 package analyzer
 
 import (
+	"bounce-collector/cmd/bouncer/database"
 	"errors"
+	"net/mail"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,12 +19,12 @@ const (
 	nonExistSMTPString  = "an mx or srv record indicated no smtp service"
 )
 
-// Result struct describes result.
-type Result struct {
+// bodyData struct describes result.
+type bodyData struct {
 	// Type	BounceType
+	Reason     string
 	SMTPCode   int
 	SMTPStatus string
-	Reason     string
 }
 
 // RecordInfo struct describes record for every email putted in redis.
@@ -35,20 +37,86 @@ type RecordInfo struct {
 	Date       string `json:"date"`
 }
 
-// Analyze - analyses body for error messages in it.
-func Analyze(body []byte) Result {
-	if res, err := findBounceMessage(body); err == nil {
-		return res
-	}
+type MailData struct {
+	mail *mail.Message
+	res  chan database.RecordPayload
+}
 
-	return Result{
-		SMTPCode:   0,
-		SMTPStatus: "0.0.0",
-		Reason:     "Unable to find reason",
+// MailAnalyzer is a channel for analyzer.
+type MailAnalyzer chan MailData
+
+// New - creates new analyzer instance.
+func New() *MailAnalyzer {
+	mailAnalyzer := make(MailAnalyzer)
+	go mailAnalyzer.Analyze()
+	return &mailAnalyzer
+}
+
+// Analyze - analyzes body for error messages in it.
+func (ma *MailAnalyzer) Analyze() {
+	for cmd := range *ma {
+		cmd.res <- ma.doAnalyze(cmd.mail)
 	}
 }
 
-func findBounceMessage(body []byte) (res Result, err error) {
+// doAnalyze - analyzes body for error messages in it.
+func (ma *MailAnalyzer) doAnalyze(m *mail.Message) database.RecordPayload {
+	// Get data from mail headers
+	rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
+	date := m.Header.Get("Date")
+	from := parseFrom(m.Header.Get("From"))
+
+	// Get data from mail body
+	//body, _ := io.ReadAll(m.Body)
+	//smtpCode, smtpStatus, reason := ma.Parse(body)
+
+	messageInfo := RecordInfo{
+		Domain:     getDomainFromAddress(rcpt),
+		SMTPCode:   0,
+		SMTPStatus: "0.0.0",
+		Reason:     "Unable to find reason",
+		Date:       date,
+		Reporter:   from,
+	}
+
+	return database.RecordPayload{
+		Key:   rcpt,
+		Value: messageInfo,
+		TTL:   0,
+	}
+}
+
+// Parse - analyzes body for error messages in it.
+func (ma *MailAnalyzer) Parse(body []byte) (int, string, string) {
+
+}
+
+// parseDiagCode - parses diagnostic code from body.
+
+// Rotate and decapitalize body for more comfortable string searching.
+func (ma *MailAnalyzer) rotateAndDecapitalize(body []byte) []string {
+	lns := strings.Split(strings.ToLower(string(body)), "\n")
+	numLines := len(lns)
+	lines := make([]string, numLines)
+
+	for i, l := range lns {
+		lines[numLines-i-1] = l
+	}
+
+	return lines
+}
+
+// ===================
+// Analyze - analyzes body for error messages in it.
+func Analyze(body []byte) (int, string, string) {
+	if res, err := findBounceMessage(body); err == nil {
+		return res.SMTPCode, res.SMTPStatus, res.Reason
+	}
+
+	return 0, "0.0.0", "Unable to find reason"
+}
+
+func findBounceMessage(body []byte) (res bodyData, err error) {
 	// Ценный Diagnostic-Code находится обычно в конце тела, поэтому перевернем body и приведем к нижнему регистру
 	lns := strings.Split(strings.ToLower(string(body)), "\n")
 	numLines := len(lns)
@@ -101,7 +169,7 @@ func findBounceMessage(body []byte) (res Result, err error) {
 	return res, err
 }
 
-func analyzeDiagCode(s string) (res Result, err error) {
+func analyzeDiagCode(s string) (res bodyData, err error) {
 	var (
 		statusRegexp = regexp.MustCompile(`^\d\.\d\.\d+$`)
 	)
@@ -150,4 +218,24 @@ func parseCode(s string) (code int) {
 	}
 
 	return 0
+}
+
+// parseFrom - parses from address from string.
+func parseFrom(s string) string {
+	e, err := mail.ParseAddress(s)
+	if err != nil {
+		return "unknown@unknown.tld"
+	}
+
+	return e.Address
+}
+
+// getDomainFromAddress - returns domain from mail address.
+func getDomainFromAddress(addr string) string {
+	a := strings.Split(addr, "@")
+	if len(a) > 1 {
+		return a[1]
+	}
+
+	return "unknown.tld"
 }

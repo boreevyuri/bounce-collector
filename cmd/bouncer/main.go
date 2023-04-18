@@ -4,6 +4,7 @@ import (
 	"bounce-collector/cmd/bouncer/analyzer"
 	"bounce-collector/cmd/bouncer/config"
 	"bounce-collector/cmd/bouncer/database"
+	"bounce-collector/cmd/bouncer/mailparser"
 	"bounce-collector/cmd/bouncer/writer"
 	"bufio"
 	"context"
@@ -66,10 +67,23 @@ func main() {
 	}
 
 	// Check if we need to process mail from file or check address
-	fileName := flag.Arg(0)
+	//fileName := flag.Arg(0)
 
 	// get mail from stdin or file and process it
-	processMail(fileName, conf.Redis)
+	//processMail(fileName, conf.Redis)
+
+	// get mail from stdin or file and process it
+	fileNames := flag.Args()
+
+	mailParser := mailparser.New(db)
+
+	err = mailParser.ProcessMails(fileNames)
+	if err != nil {
+		fmt.Printf("Collector error: %+v", err)
+		os.Exit(runError)
+	}
+
+	<-mailParser.Done
 
 	os.Exit(success)
 }
@@ -150,20 +164,20 @@ func readInput(fileName string) (m *mail.Message) {
 	return m
 }
 
-func getDomainFromAddress(addr string) string {
-	a := strings.Split(addr, "@")
-	if len(a) > 1 {
-		return a[1]
-	}
-
-	return "unknown.tld"
-}
-
-func parseFrom(s string) string {
-	e, err := mail.ParseAddress(s)
-	if err != nil {
-		return "unknown@unknown.tld"
-	}
-
-	return e.Address
-}
+//func getDomainFromAddress(addr string) string {
+//	a := strings.Split(addr, "@")
+//	if len(a) > 1 {
+//		return a[1]
+//	}
+//
+//	return "unknown.tld"
+//}
+//
+//func parseFrom(s string) string {
+//	e, err := mail.ParseAddress(s)
+//	if err != nil {
+//		return "unknown@unknown.tld"
+//	}
+//
+//	return e.Address
+//}
