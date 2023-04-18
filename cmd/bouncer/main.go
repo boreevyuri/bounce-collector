@@ -3,6 +3,7 @@ package main
 import (
 	"bounce-collector/cmd/bouncer/analyzer"
 	"bounce-collector/cmd/bouncer/config"
+	"bounce-collector/cmd/bouncer/database"
 	"bounce-collector/cmd/bouncer/writer"
 	"bufio"
 	"context"
@@ -42,11 +43,25 @@ func main() {
 		os.Exit(failConfig)
 	}
 
+	// create database connection
+	db, err := database.NewDB(conf)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(failConfig)
+	}
+
 	// if there is address to check, check it and exit
 	if len(checkAddr) != 0 {
-		msg := checkMail(checkAddr, conf.Redis)
-		// send result to stdout and exit
-		fmt.Println(msg)
+		switch db.Find(strings.ToLower(checkAddr)) {
+		case true:
+			// record found, let exim router pass it
+			fmt.Println("Pass")
+		case false:
+			// record not found, let exim router decline it
+			fmt.Println("Decline")
+		}
+		// close database connection
+		db.Close()
 		os.Exit(success)
 	}
 
@@ -57,16 +72,6 @@ func main() {
 	processMail(fileName, conf.Redis)
 
 	os.Exit(success)
-}
-
-func checkMail(email string, redisConfig config.RedisConfig) string {
-	// create simple context
-	ctx := context.Background()
-	if writer.IsPresent(ctx, email, redisConfig) {
-		return "Pass"
-	}
-
-	return "Decline"
 }
 
 func processMail(fileName string, redisConfig config.RedisConfig) {
@@ -119,7 +124,7 @@ func readInput(fileName string) (m *mail.Message) {
 		file, err := os.Open(fileName)
 		if err != nil {
 			fmt.Println("Usage:")
-			fmt.Println("bounce-collector -f config.yaml file.eml")
+			fmt.Println("bounce-collector -c config.yaml file.eml")
 			fmt.Println("or")
 			fmt.Println("cat file.eml | bounce-collector -f config.yaml")
 			os.Exit(runError)
@@ -162,28 +167,3 @@ func parseFrom(s string) string {
 
 	return e.Address
 }
-
-// func isValidConfigFilename(filename string) bool {
-//	return len(filename) > 0
-// }
-
-// func (c *conf) getConf(filename string) *conf {
-//	if isValidConfigFilename(filename) {
-//		yamlFile, err := os.ReadFile(filename)
-//		if err != nil {
-//			fmt.Println("no config file specified")
-//			os.Exit(failConfig)
-//		}
-//
-//		err = yaml.Unmarshal(yamlFile, c)
-//
-//		if err != nil {
-//			fmt.Println(yamlFile)
-//			os.Exit(failConfig)
-//		}
-//
-//		return c
-//	}
-//
-//	return nil
-// }

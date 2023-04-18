@@ -23,12 +23,13 @@ func (r *redisConnection) run(conf config.RedisConfig) {
 		Password: conf.Password,
 		DB:       0,
 	})
-	defer r.Close()
 
 	_, err := rc.Ping(ctx).Result()
 	if err != nil {
 		log.Fatal("unable to connect redis:", err)
 	}
+
+	defer r.Close()
 
 	for cmd := range *r {
 		switch cmd.action {
@@ -47,6 +48,12 @@ func (r *redisConnection) run(conf config.RedisConfig) {
 				cmd.result <- false
 			}
 			cmd.result <- true
+		case doClose:
+			err := rc.Close()
+			if err != nil {
+				log.Fatal("unable to close redis connection:", err)
+			}
+			return
 		}
 	}
 }
@@ -77,5 +84,8 @@ func (r *redisConnection) Find(key string) bool {
 
 // Close closes the redis connection.
 func (r *redisConnection) Close() {
+	// close connection to redis
+	*r <- command{action: doClose}
+	// close channel
 	close(*r)
 }

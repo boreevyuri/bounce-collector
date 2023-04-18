@@ -13,6 +13,7 @@ type commandAction int
 const (
 	doFind commandAction = iota
 	doUpsert
+	doClose
 )
 
 // recordPayload - struct for passing data to command channel.
@@ -29,12 +30,15 @@ type command struct {
 	result chan bool
 }
 
+// DB - database interface.
 type DB interface {
 	Insert(payload recordPayload) bool
 	Find(key string) bool
+	Close()
 }
 
-func NewDB(conf config.Conf) (*DB, error) {
+// NewDB - create new database client.
+func NewDB(conf *config.Conf) (DB, error) {
 	// if config.Redis exists, use redis
 	// if config.Postgres exists, use postgres
 	// if config.MySQL exists, use mysql
@@ -45,7 +49,7 @@ func NewDB(conf config.Conf) (*DB, error) {
 			return nil, err
 		}
 
-		return &client, nil
+		return client, nil
 	}
 
 	return nil, errors.New("no database config found")
