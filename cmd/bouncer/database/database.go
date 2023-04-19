@@ -1,7 +1,6 @@
 package database
 
 import (
-	"bounce-collector/cmd/bouncer/analyzer"
 	"bounce-collector/cmd/bouncer/config"
 	"errors"
 	"time"
@@ -19,7 +18,7 @@ const (
 // RecordPayload - struct for passing data to command channel.
 type RecordPayload struct {
 	Key   string
-	Value analyzer.RecordInfo
+	Value []byte
 	TTL   time.Duration
 }
 

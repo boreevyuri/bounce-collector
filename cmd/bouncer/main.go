@@ -1,17 +1,11 @@
 package main
 
 import (
-	"bounce-collector/cmd/bouncer/analyzer"
 	"bounce-collector/cmd/bouncer/config"
 	"bounce-collector/cmd/bouncer/database"
 	"bounce-collector/cmd/bouncer/mailparser"
-	"bounce-collector/cmd/bouncer/writer"
-	"bufio"
-	"context"
 	"flag"
 	"fmt"
-	"io"
-	"net/mail"
 	"os"
 	"strings"
 )
@@ -77,92 +71,93 @@ func main() {
 
 	mailParser := mailparser.New(db)
 
-	err = mailParser.ProcessMails(fileNames)
-	if err != nil {
-		fmt.Printf("Collector error: %+v", err)
-		os.Exit(runError)
-	}
+	mailParser.ProcessMails(fileNames)
+	//err = mailParser.ProcessMails(fileNames)
+	//if err != nil {
+	//	fmt.Printf("Collector error: %+v", err)
+	//	os.Exit(runError)
+	//}
 
 	<-mailParser.Done
 
 	os.Exit(success)
 }
 
-func processMail(fileName string, redisConfig config.RedisConfig) {
-	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-
-	// create simple context
-	ctx := context.Background()
-
-	var (
-		messageInfo analyzer.RecordInfo
-		record      writer.Record
-	)
-
-	m := readInput(fileName)
-	rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
-	body, _ := io.ReadAll(m.Body)
-	res := analyzer.Analyze(body)
-
-	messageInfo = analyzer.RecordInfo{
-		Domain:     getDomainFromAddress(rcpt),
-		SMTPCode:   res.SMTPCode,
-		SMTPStatus: res.SMTPStatus,
-		Reason:     res.Reason,
-		Date:       m.Header.Get("Date"),
-		Reporter:   parseFrom(m.Header.Get("From")),
-	}
-
-	record = writer.Record{
-		Rcpt: rcpt,
-		TTL:  analyzer.SetTTL(messageInfo),
-		Info: messageInfo,
-	}
-
-	err := writer.PutRecord(ctx, record, redisConfig)
-	if err != nil {
-		fmt.Printf("Collector error: %+v", err)
-		os.Exit(failRedis)
-	}
-}
-
-func readInput(fileName string) (m *mail.Message) {
-	var reader *bufio.Reader
-
-	inputData, err := os.Stdin.Stat()
-	if err != nil {
-		panic(err)
-	}
-
-	if (inputData.Mode() & os.ModeNamedPipe) == 0 {
-		file, err := os.Open(fileName)
-		if err != nil {
-			fmt.Println("Usage:")
-			fmt.Println("bounce-collector -c config.yaml file.eml")
-			fmt.Println("or")
-			fmt.Println("cat file.eml | bounce-collector -f config.yaml")
-			os.Exit(runError)
-		}
-
-		defer func() {
-			if err := file.Close(); err != nil {
-				os.Exit(runError)
-			}
-		}()
-
-		reader = bufio.NewReader(file)
-	} else {
-		reader = bufio.NewReader(os.Stdin)
-	}
-
-	m, err = mail.ReadMessage(reader)
-
-	if err != nil {
-		os.Exit(runError)
-	}
-
-	return m
-}
+// func processMail(fileName string, redisConfig config.RedisConfig) {
+//	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+//
+//	// create simple context
+//	ctx := context.Background()
+//
+//	var (
+//		messageInfo analyzer.RecordInfo
+//		record      writer.Record
+//	)
+//
+//	m := readInput(fileName)
+//	rcpt := strings.ToLower(m.Header.Get("X-Failed-Recipients"))
+//	body, _ := io.ReadAll(m.Body)
+//	res := analyzer.Analyze(body)
+//
+//	messageInfo = analyzer.RecordInfo{
+//		Domain:     getDomainFromAddress(rcpt),
+//		SMTPCode:   res.SMTPCode,
+//		SMTPStatus: res.SMTPStatus,
+//		Reason:     res.Reason,
+//		Date:       m.Header.Get("Date"),
+//		Reporter:   parseFrom(m.Header.Get("From")),
+//	}
+//
+//	record = writer.Record{
+//		Rcpt: rcpt,
+//		TTL:  analyzer.SetTTL(messageInfo),
+//		Info: messageInfo,
+//	}
+//
+//	err := writer.PutRecord(ctx, record, redisConfig)
+//	if err != nil {
+//		fmt.Printf("Collector error: %+v", err)
+//		os.Exit(failRedis)
+//	}
+// }
+//
+// func readInput(fileName string) (m *mail.Message) {
+//	var reader *bufio.Reader
+//
+//	inputData, err := os.Stdin.Stat()
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	if (inputData.Mode() & os.ModeNamedPipe) == 0 {
+//		file, err := os.Open(fileName)
+//		if err != nil {
+//			fmt.Println("Usage:")
+//			fmt.Println("bounce-collector -c config.yaml file.eml")
+//			fmt.Println("or")
+//			fmt.Println("cat file.eml | bounce-collector -f config.yaml")
+//			os.Exit(runError)
+//		}
+//
+//		defer func() {
+//			if err := file.Close(); err != nil {
+//				os.Exit(runError)
+//			}
+//		}()
+//
+//		reader = bufio.NewReader(file)
+//	} else {
+//		reader = bufio.NewReader(os.Stdin)
+//	}
+//
+//	m, err = mail.ReadMessage(reader)
+//
+//	if err != nil {
+//		os.Exit(runError)
+//	}
+//
+//	return m
+// }
 
 //func getDomainFromAddress(addr string) string {
 //	a := strings.Split(addr, "@")

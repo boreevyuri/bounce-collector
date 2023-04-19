@@ -4,21 +4,22 @@ import (
 	"bounce-collector/cmd/bouncer/analyzer"
 	"bounce-collector/cmd/bouncer/database"
 	"bufio"
+	"github.com/boreevyuri/go-email/email"
 	"log"
-	"net/mail"
 	"os"
+	"time"
 )
 
-type mailParser struct {
+type MailParser struct {
 	input    chan []string
 	analyzer *analyzer.MailAnalyzer
 	db       database.DB
 	Done     chan bool
 }
 
-// New creates new mailParser
-func New(db database.DB) *mailParser {
-	mp := new(mailParser)
+// New creates new MailParser
+func New(db database.DB) *MailParser {
+	mp := new(MailParser)
 	mp.db = db
 	mp.input = make(chan []string)
 	mp.Done = make(chan bool)
@@ -27,29 +28,39 @@ func New(db database.DB) *mailParser {
 }
 
 // ProcessMails - process mails from files or STDIN
-func (mp *mailParser) ProcessMails(fileNames []string) {
+func (mp *MailParser) ProcessMails(fileNames []string) {
 	if len(fileNames) == 0 {
 		// if no files, read from STDIN
 		fileNames = append(fileNames, "")
 	}
+
 	go func() {
 		for _, fileName := range fileNames {
 			// read file
-			data, err := mp.readFile(fileName)
+			data, err := mp.readEmail(fileName)
 			if err != nil {
 				log.Println("unable to read file:", err)
 				return
 			}
-			// TODO: parse file
-			// TODO: send result to db
+
+			// parse file
+			result, err := mp.analyzer.Do(data)
+			if err != nil {
+				log.Println("unable to parse file:", err)
+				return
+			}
+			log.Printf("result: %+v", result)
+
+			// write to db
+			mp.write(result)
 		}
 		mp.Done <- true
 	}()
 }
 
-// readFile - read file from disk or STDIN if fileName is empty
+// readEmail - read file from disk or STDIN if fileName is empty
 // returns *mail.Message or error
-func (mp *mailParser) readFile(fileName string) (*mail.Message, error) {
+func (mp *MailParser) readEmail(fileName string) (*email.Message, error) {
 	// create reader
 	var reader *bufio.Reader
 
@@ -72,10 +83,35 @@ func (mp *mailParser) readFile(fileName string) (*mail.Message, error) {
 	}
 
 	// read message
-	m, err := mail.ReadMessage(reader)
+	m, err := email.ParseMessage(reader)
 	if err != nil {
 		return nil, err
 	}
 
 	return m, nil
+}
+
+// write - writes data to db
+func (mp *MailParser) write(data analyzer.RecordInfo) {
+	m, err := data.ToJSON()
+	if err != nil {
+		log.Println("unable to marshal record info:", err)
+		return
+	}
+
+	if data.Rcpt == "" {
+		log.Println("rcpt is empty. Skip writing to db")
+		return
+	}
+
+	record := database.RecordPayload{
+		Key:   data.Rcpt,
+		Value: m,
+		TTL:   time.Second * 600,
+	}
+	// send record to db
+	if !mp.db.Insert(record) {
+		log.Println("unable to insert data to db")
+		return
+	}
 }
