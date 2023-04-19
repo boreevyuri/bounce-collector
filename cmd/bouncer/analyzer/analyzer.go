@@ -8,6 +8,7 @@ import (
 	"net/textproto"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -19,6 +20,7 @@ const (
 	nonExistentString   = "all relevant mx records point to non-existent hosts"
 	nonExistSMTPString  = "an mx or srv record indicated no smtp service"
 	reportingMTAHeader  = "reporting-mta"
+	finalRcptHeader     = "final-recipient"
 )
 
 //// bodyData struct describes result.
@@ -87,35 +89,42 @@ func (ma *MailAnalyzer) Do(message *email.Message) (RecordInfo, error) {
 		return RecordInfo{}, err
 	}
 
-	for _, m := range message.Parts {
-		if !m.HasDeliveryStatusMessage() {
-			continue
-		}
-
-		// Get reporter
-		reporter := ma.mailReporter(m)
-
-		// log.Print(m.DeliveryStatusMessageDNS())
-		// from, err := m.DeliveryStatusMessageDNS()
-		// if err != nil {
-		//	log.Println("unable to get reporter:", err)
-		//	continue
-		// }
+	dsn, err := ma.getDeliveryStatusMessage(message)
+	if err != nil {
+		return RecordInfo{}, err
 	}
+	//reporter := ma.getMailReporter(dsn)
+
+	// log.Print(m.DeliveryStatusMessageDNS())
+	// from, err := m.DeliveryStatusMessageDNS()
+	// if err != nil {
+	//	log.Println("unable to get reporter:", err)
+	//	continue
+	// }
 
 	// Send mail to analyzer
 	result := make(chan RecordInfo)
 	*ma <- MailData{
-		mail:   message,
+		mail:   dsn,
 		result: result,
 	}
 
+	// While we are waiting for result, we can do something else
+	mailDate := ma.getMailDate(message)
+	mailReporter := ma.getMailReporter(dsn)
+
 	// Get result from analyzer
-	return <-result, nil
+	record := <-result
+
+	// Fill result with data
+	record.Date = mailDate
+	record.Reporter = mailReporter
+
+	return record, nil
 }
 
-// getReporter - returns reporter from email.
-func (ma *MailAnalyzer) mailReporter(msg *email.Message) string {
+// getMailReporter - returns reporter from email.
+func (ma *MailAnalyzer) getMailReporter(msg *email.Message) string {
 	fromHeader, err := msg.DeliveryStatusMessageDNS()
 	if err != nil {
 		log.Println("unable to get reporter:", err)
@@ -131,29 +140,58 @@ func (ma *MailAnalyzer) mailReporter(msg *email.Message) string {
 	return strings.Split(reportingMTA[0], " ")[1]
 }
 
+// getDeliveryStatusMessage - returns delivery status message from email.
+func (ma *MailAnalyzer) getDeliveryStatusMessage(msg *email.Message) (*email.Message, error) {
+	for _, m := range msg.Parts {
+		if m.HasDeliveryStatusMessage() {
+			return m, nil
+		}
+	}
+
+	return nil, errors.New("unable to find delivery status message")
+}
+
 // doAnalyze - analyzes body for error messages in it.
 func (ma *MailAnalyzer) doAnalyze(m *email.Message) RecordInfo {
-	// messageInfo := RecordInfo{
-	//	Domain:     getDomainFromAddress(rcpt),
-	//	SMTPCode:   0,
-	//	SMTPStatus: "0.0.0",
-	//	Reason:     "Unable to find reason",
-	//	Date:       date,
-	//	Reporter:   from,
-	// }
+	// Get rcpt domain from Final-Recipient header
+	headers, err := m.DeliveryStatusRecipientDNS()
+	if err != nil {
+		log.Println("unable to get recipient:", err)
+	}
 
-	// return database.RecordPayload{
-	//	Key:   rcpt,
-	//	Value: messageInfo,
-	//	TTL:   0,
-	// }
+	// print every header on each line
+	// headers is a map[string][]string
+	for k, v := range headers[0] {
+		log.Printf("key: %s, value: %s, len: %d \n", k, v, len(v))
+	}
 
-	// rcptDNS, err := m.DeliveryStatusRecipientDNS()
-	// if err != nil {
-	//	return err
-	// }
+	rcpt := headers[0].Get(finalRcptHeader)
+	if len(rcpt) == 0 {
+		log.Println("unable to get recipient from header")
+		rcpt = "unknown"
+	}
+	domain := getDomainFromAddress(rcpt)
 
-	return RecordInfo{}
+	messageInfo := RecordInfo{
+		Rcpt:       "unknown",
+		Domain:     domain,
+		SMTPCode:   0,
+		SMTPStatus: "0.0.0",
+		Reason:     "Unable to find reason",
+		Date:       "",
+		Reporter:   "",
+	}
+
+	return messageInfo
+}
+
+// getMailDate - returns date from email or current date.
+func (ma *MailAnalyzer) getMailDate(m *email.Message) string {
+	mailDate, err := m.Header.Date()
+	if err != nil {
+		mailDate = time.Now()
+	}
+	return mailDate.Format("2006-01-02 15:04:05")
 }
 
 // ===================
